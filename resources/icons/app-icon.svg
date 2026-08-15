@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="P2P Desk icon">
+  <rect width="512" height="512" rx="112" fill="#123c34"/>
+  <path d="M110 150h164c71 0 118 39 118 102 0 67-50 108-126 108h-64v74h-92V150Zm92 74v62h60c25 0 39-11 39-32 0-20-14-30-39-30h-60Z" fill="#f7d88d"/>
+  <circle cx="385" cy="385" r="54" fill="#fffdf8"/>
+  <path d="m359 386 18 18 35-42" fill="none" stroke="#ba8a2f" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

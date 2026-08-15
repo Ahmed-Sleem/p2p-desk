@@ -1,0 +1,10 @@
+# Generated evidence and dependency lock outputs are validated by their producers.
+evidence/*.json
+package-lock.json
+
+# Native/generated outputs.
+src-tauri/target/
+src-tauri/gen/
+app/dist/
+app/coverage/
+node_modules/

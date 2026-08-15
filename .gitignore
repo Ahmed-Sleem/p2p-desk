@@ -1,0 +1,37 @@
+# Dependency/build outputs
+node_modules/
+target/
+app/dist/
+app/coverage/
+.ci-target/
+artifacts/
+
+# Local gate evidence and working records (not public repository content)
+evidence/
+_working_docs/
+**/thinking/
+scripts/gate1_audit.py
+scripts/use-sandbox-toolchains.sh
+
+# Tool/editor state
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Local application/test state
+*.db
+*.db-shm
+*.db-wal
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# Generated Tauri schemas
+src-tauri/gen/

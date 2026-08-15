@@ -1,0 +1,133 @@
+name: Verify and build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux verification
+            runner: ubuntu-24.04
+            rust_target: x86_64-unknown-linux-gnu
+          - name: Windows x64 verification and portable build
+            runner: windows-2025
+            rust_target: x86_64-pc-windows-msvc
+          - name: Intel macOS verification and app build
+            runner: macos-15-intel
+            rust_target: x86_64-apple-darwin
+
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.ci-target
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.1
+          cache: npm
+
+      - name: Install pinned Rust toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt --component clippy
+          rustup default 1.97.1
+          rustup target add "${{ matrix.rust_target }}"
+
+      - name: Restore Rust dependency and build cache
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            .ci-target
+          key: cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Cargo.lock', 'rust-toolchain.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Install Linux desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install locked frontend dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run complete verification
+        run: npm run verify
+
+      - name: Build Windows portable executable
+        if: runner.os == 'Windows'
+        run: npm exec tauri -- build --no-bundle
+
+      - name: Prepare Windows artifact and checksum
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          Copy-Item ".ci-target/release/P2PDesk.exe" "artifacts/P2PDesk-Windows-x64-unsigned.exe"
+          $hash = (Get-FileHash "artifacts/P2PDesk-Windows-x64-unsigned.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  P2PDesk-Windows-x64-unsigned.exe" | Set-Content -NoNewline "artifacts/P2PDesk-Windows-x64-unsigned.exe.sha256"
+
+      - name: Upload Windows build evidence
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: P2PDesk-Windows-x64-unsigned
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build Intel macOS application
+        if: runner.os == 'macOS'
+        run: npm exec tauri -- build --target x86_64-apple-darwin --bundles app
+
+      - name: Inspect and archive Intel macOS application
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_path=".ci-target/x86_64-apple-darwin/release/bundle/macos/P2P Desk.app"
+          binary_path="$app_path/Contents/MacOS/P2PDesk"
+          test -d "$app_path"
+          test "$(lipo -archs "$binary_path")" = "x86_64"
+          test "$(plutil -extract LSMinimumSystemVersion raw "$app_path/Contents/Info.plist")" = "12.0"
+          mkdir -p artifacts
+          ditto -c -k --sequesterRsrc --keepParent "$app_path" "artifacts/P2PDesk-macOS-Intel-unsigned.zip"
+          shasum -a 256 "artifacts/P2PDesk-macOS-Intel-unsigned.zip" > "artifacts/P2PDesk-macOS-Intel-unsigned.zip.sha256"
+          file "$binary_path" | tee "artifacts/P2PDesk-macOS-Intel-inspection.txt"
+          plutil -p "$app_path/Contents/Info.plist" >> "artifacts/P2PDesk-macOS-Intel-inspection.txt"
+          codesign -dvv "$app_path" >> "artifacts/P2PDesk-macOS-Intel-inspection.txt" 2>&1 || true
+
+      - name: Upload Intel macOS build evidence
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: P2PDesk-macOS-Intel-unsigned
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,41 @@
+{
+  "calculationVersion": "p2p-desk-calc-1.0.1",
+  "domainSchemaVersion": "p2p-desk-domain-1.1.0",
+  "sideMapping": {
+    "buyRequest": "BUY",
+    "buyAdvertiser": "SELL",
+    "sellRequest": "SELL",
+    "sellAdvertiser": "BUY"
+  },
+  "halfEvenIntegers": ["6", "8"],
+  "r7Quartile": "1.75",
+  "weightedInverseEcdf": "20",
+  "outlierStatuses": ["typical", "typical", "typical", "typical", "outlier"],
+  "hhi": "0.38",
+  "multiAd": {
+    "method": "certified-continuous-sorted-greedy",
+    "optimal": true,
+    "filledInput": "12",
+    "remainderInput": "0",
+    "totalOutput": "29",
+    "stableIds": ["a", "b"]
+  },
+  "formulaMetadata": {
+    "calculationVersion": "p2p-desk-calc-1.0.1",
+    "domainSchemaVersion": "p2p-desk-domain-1.1.0",
+    "exactDecimal": "fastnum-d256-checked-no-binary-float",
+    "rounding": "midpoint-nearest-even-at-explicit-output-boundaries",
+    "unweightedQuantile": "hyndman-fan-r7-linear",
+    "weightedQuantile": "inverse-weighted-empirical-cdf",
+    "modifiedZFormula": "0.6745-times-x-minus-median-divided-by-mad",
+    "modifiedZThreshold": "3.5",
+    "modifiedZMinimumSample": 5,
+    "zeroMadPolicy": "indeterminate",
+    "eligibilityComparison": "exact-unrounded-amount-limit-availability-payment-merchant-price",
+    "grossSpreadFormula": "sell-fiat-minus-buy-fiat-divided-by-buy-fiat",
+    "costFormula": "clamp-fixed-fiat-plus-percent-gross-fiat-plus-fixed-asset-times-price-then-add-fixed-and-percent-buffer",
+    "unknownCostPolicy": "suppress-net-zero-must-be-explicit",
+    "multiAdObjective": "maximize-input-fill-then-output-then-fewer-legs-then-stable-ids",
+    "multiAdCertificate": "optimal-only-for-continuous-zero-minimum-zero-fixed-cost-sorted-greedy"
+  }
+}

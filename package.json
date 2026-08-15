@@ -1,0 +1,36 @@
+{
+  "name": "p2p-desk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "P2P Desk — read-only P2P decision terminal",
+  "license": "MIT",
+  "engines": {
+    "node": "24.18.1",
+    "npm": "11.16.0"
+  },
+  "packageManager": "npm@11.16.0",
+  "workspaces": [
+    "app"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @p2p-desk/app",
+    "build:web": "npm run build --workspace @p2p-desk/app",
+    "build": "npm run build:web",
+    "test": "npm run test --workspace @p2p-desk/app",
+    "test:run": "npm run test:run --workspace @p2p-desk/app",
+    "lint": "npm run lint --workspace @p2p-desk/app",
+    "typecheck": "npm run typecheck --workspace @p2p-desk/app",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build --no-bundle",
+    "verify:domain": "cargo fmt --manifest-path crates/p2p-domain/Cargo.toml -- --check && cargo clippy --manifest-path crates/p2p-domain/Cargo.toml --locked --all-targets --all-features -- -D warnings && cargo test --manifest-path crates/p2p-domain/Cargo.toml --locked --all-targets --all-features && python3 scripts/gate_02_audit.py",
+    "verify:public": "python3 scripts/public_repo_audit.py",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test:run && npm run build:web && npm run verify:domain && cargo fmt --manifest-path src-tauri/Cargo.toml -- --check && cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets --all-features -- -D warnings && cargo test --manifest-path src-tauri/Cargo.toml --locked --all-targets --all-features && python3 scripts/security_audit.py && npm run verify:public"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4",
+    "prettier": "3.9.6"
+  }
+}

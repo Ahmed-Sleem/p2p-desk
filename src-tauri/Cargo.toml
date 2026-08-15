@@ -1,0 +1,38 @@
+[package]
+name = "p2p-desk"
+version = "0.1.0"
+description = "P2P Desk — read-only P2P decision terminal"
+authors = ["P2P Desk contributors"]
+edition = "2024"
+rust-version = "1.97.1"
+license = "MIT"
+publish = false
+
+[lib]
+name = "p2p_desk_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[[bin]]
+name = "P2PDesk"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+
+[dependencies]
+p2p-domain = { path = "../crates/p2p-domain" }
+serde = { version = "=1.0.229", features = ["derive"] }
+tauri = { version = "=2.11.5", features = [] }
+tauri-plugin-window-state = "=2.4.1"
+thiserror = "=2.0.20"
+
+[dev-dependencies]
+serde_json = "=1.0.151"
+
+[target.'cfg(windows)'.dependencies]
+webview2-com = "=0.39.1"
+windows = { version = "=0.62.2", features = [
+  "Win32_Foundation",
+  "Win32_System_Com",
+  "Win32_UI_WindowsAndMessaging",
+] }
