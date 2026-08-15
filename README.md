@@ -22,6 +22,8 @@ The live source is an unsupported website contract and is always labeled **Exper
 
 The screenshot shows the current foundation shell. Live acquisition, persistence, complete pages, reports, and release packages are still in development.
 
+For design review, open the self-contained [finished-GUI HTML preview](design/p2p-desk-finished-gui-preview.html). Its values and merchant labels are illustrative interface content only—not live, cached, historical, or captured provider data.
+
 ## Current capabilities
 
 | Capability                                         | Current behavior                                                                                                                                                                 |
