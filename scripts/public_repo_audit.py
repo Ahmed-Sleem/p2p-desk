@@ -33,6 +33,7 @@ required = {
     Path("README.md"),
     Path("LICENSE"),
     Path(".gitignore"),
+    Path(".gitattributes"),
     Path("package.json"),
     Path("package-lock.json"),
     Path("rust-toolchain.toml"),
