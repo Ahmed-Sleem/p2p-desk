@@ -43,9 +43,9 @@ Platform prerequisites and locked commands are in [docs/build.md](docs/build.md)
 
 ## Quick start
 
-From a checked-out source tree:
-
 ```bash
+git clone https://github.com/Ahmed-Sleem/p2p-desk.git
+cd p2p-desk
 npm ci --ignore-scripts
 npm run verify
 npm run tauri:dev
