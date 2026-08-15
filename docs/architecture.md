@@ -13,6 +13,7 @@ The frontend has no filesystem, HTTP, shell, dialog, updater, notification, acco
 ## Central sources
 
 - Rust product/build/window constants: `src-tauri/src/contracts.rs`.
+- Experimental source policy, contracts, scheduling, circuits, Agent isolation and pair checks: `crates/p2p-provider/` and `docs/provider.md`.
 - TypeScript IPC shape: `app/src/ipc/contracts.ts`.
 - IPC invocation/defensive error normalization: `app/src/ipc/client.ts`.
 - Window/security/base Windows bundle policy: `src-tauri/tauri.conf.json`.
@@ -21,6 +22,10 @@ The frontend has no filesystem, HTTP, shell, dialog, updater, notification, acco
 - Tool versions: `.node-version`, `rust-toolchain.toml`, package manifests and lockfiles.
 
 Later gates must extend these sources rather than duplicate them.
+
+## Provider runtime
+
+The Tauri process constructs and owns one `LiveProviderRuntime`. Its primary adapter uses fixed HTTPS destinations, exact response normalization, one serialized acquisition graph, one globally paced request gate, bounded retries, cancellation, and global timed/persistent circuits. Optional Agent metadata and quote types are structurally separate and cannot become primary ads. Gate 3 does not widen the current frontend command surface; lifecycle/state commands and event wiring are added with their UI orchestration gate.
 
 ## Window state
 

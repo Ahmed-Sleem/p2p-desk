@@ -29,7 +29,7 @@ The screenshot shows the current foundation shell. Live acquisition, persistence
 | Desktop foundation                                 | Restrictive CSP, narrow typed IPC, local assets, least-privilege Tauri capability, and safe window-state handling                                                                |
 | Exact domain core                                  | String-only exact decimal boundary, side and eligibility validation, deterministic ranking, quotes, costs, robust statistics, sensitivity, and constrained multi-ad calculations |
 | Verification                                       | Locked formatting, linting, type checks, frontend/Rust tests, security invariants, and production web build                                                                      |
-| Live provider                                      | Not implemented yet                                                                                                                                                              |
+| Experimental live provider                         | Validated fail-closed Rust adapter, scheduling, circuits, pair checks, and isolated Agent metadata; UI orchestration is not implemented yet                                      |
 | SQLite, complete UI, reports, and release packages | Not implemented yet                                                                                                                                                              |
 
 ## Requirements
@@ -70,6 +70,7 @@ scripts/             verification and dependency tools
 | [Architecture](docs/architecture.md)           | Trust boundary and module ownership                  |
 | [Build](docs/build.md)                         | Toolchains, prerequisites, and verification commands |
 | [Security](docs/security.md)                   | Local-only frontend and capability policy            |
+| [Provider contract](docs/provider.md)          | Experimental source controls and failure policy      |
 | [Dependency review](docs/dependency-review.md) | Dependency and advisory handling                     |
 
 ## Planned release targets

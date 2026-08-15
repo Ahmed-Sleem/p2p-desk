@@ -17,7 +17,7 @@
 
 ## Network
 
-Gate 1 contains no provider networking. Later provider access must exist only in a Rust allowlisted adapter and must not widen frontend `connect-src`.
+Provider access exists only in the trusted Rust `p2p-provider` crate. It has three fixed HTTPS destination constants, rejects redirects, bounds time/body/retry/rate behavior, validates exact contracts, and fails closed. The webview still has no network API and production `connect-src` remains limited to Tauri IPC. See [Experimental provider contract](provider.md).
 
 ## Storage
 

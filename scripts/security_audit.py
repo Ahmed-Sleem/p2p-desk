@@ -24,6 +24,10 @@ capability = json.loads((ROOT / "src-tauri/capabilities/main.json").read_text())
 root_package = json.loads((ROOT / "package.json").read_text())
 app_package = json.loads((ROOT / "app/package.json").read_text())
 cargo = (ROOT / "src-tauri/Cargo.toml").read_text()
+provider_cargo = (ROOT / "crates/p2p-provider/Cargo.toml").read_text()
+provider_sources = "\n".join(
+    p.read_text() for p in (ROOT / "crates/p2p-provider/src").rglob("*.rs")
+)
 build_rs = (ROOT / "src-tauri/build.rs").read_text()
 vite_config = (ROOT / "app/vite.config.ts").read_text()
 rust_sources = "\n".join(p.read_text() for p in (ROOT / "src-tauri/src").glob("*.rs"))
@@ -49,7 +53,21 @@ check("no unsafe web sinks", not re.search(r"dangerouslySetInnerHTML|\.innerHTML
 check("no frontend network API", not re.search(r"\bfetch\s*\(|XMLHttpRequest|WebSocket\s*\(", web_sources))
 check("no generated module-preload fetch polyfill", "modulePreload: { polyfill: false }" in vite_config)
 check("no Rust process or command execution", "std::process::Command" not in rust_sources and "std::process::command" not in rust_sources.lower())
-check("no Rust provider networking dependency", all(token not in cargo for token in ["reqwest", "ureq", "hyper =", "tauri-plugin-http"]))
+check(
+    "Rust networking is confined to the fixed allowlisted provider crate",
+    'p2p-provider = { path = "../crates/p2p-provider" }' in cargo
+    and "reqwest" not in cargo
+    and 'reqwest = { version = "=0.13.4"' in provider_cargo
+    and "tauri-plugin-http" not in provider_cargo
+    and all(
+        endpoint in provider_sources
+        for endpoint in [
+            "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search",
+            "https://www.binance.com/bapi/c2c/v1/public/c2c/agent/trade-methods",
+            "https://www.binance.com/bapi/c2c/v1/public/c2c/agent/quote-price",
+        ]
+    ),
+)
 check("system WebView2 only", config["bundle"]["windows"]["webviewInstallMode"]["type"] == "skip" and "GetAvailableCoreWebView2BrowserVersionString" in rust_sources)
 check("portable no-bundle config", config["bundle"]["active"] is False and root_package["scripts"]["tauri:build"].endswith("--no-bundle"))
 check(

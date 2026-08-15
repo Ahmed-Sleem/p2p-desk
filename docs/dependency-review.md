@@ -1,4 +1,4 @@
-# Gate 1 Dependency and Advisory Review
+# Dependency and Advisory Review
 
 Review date: 2026-08-14 (Africa/Cairo)
 
@@ -31,3 +31,15 @@ Evidence:
 - `evidence/gate_01_cargo_audit.json`
 - `evidence/gate_01_cargo_advisory_paths.txt`
 - `evidence/gate_01_windows_advisory_scope.txt`
+
+## Gate 3 provider update — 2026-08-15
+
+The trusted provider crate adds exact-pinned Reqwest 0.13.4, Tokio 1.53.1, Tokio Util 0.7.19, and their locked TLS/HTTP dependencies. Reqwest uses Rustls with the platform certificate verifier, HTTPS-only requests, and no redirect, cookie, compression, multipart, proxy-discovery, or frontend HTTP plugin feature.
+
+The provider-only locked graph contains 168 dependency name/version components across all target metadata. Registry metadata reports a license for every component; no AGPL/GPL-3/GPLv3 candidate expression was found. Cargo-audit reports zero vulnerabilities and zero informational warnings for the provider lockfile. The integrated Tauri lockfile still reports zero vulnerabilities plus the same previously reviewed 16 unmaintained and one Linux GTK/glib unsound informational warnings; the provider addition introduced no matched advisory.
+
+Local evidence is kept outside the public repository:
+
+- `evidence/gate_03_provider_dependency_inventory.json`
+- `evidence/gate_03_provider_cargo_audit.json`
+- `evidence/gate_03_integrated_cargo_audit.json`

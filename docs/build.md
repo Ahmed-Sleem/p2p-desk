@@ -25,16 +25,26 @@ npm run build:web
 npm audit --audit-level=moderate
 ```
 
-## Rust verification
+## Rust and complete verification
 
 ```bash
 rustc --version
 cargo --version
+npm run verify:domain
+npm run verify:provider
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets --all-features -- -D warnings
 cargo test --manifest-path src-tauri/Cargo.toml --locked --all-targets --all-features
 cargo build --manifest-path src-tauri/Cargo.toml --locked
+cargo audit --file crates/p2p-provider/Cargo.lock
 cargo audit --file src-tauri/Cargo.lock
+npm run verify
+```
+
+The optional current-contract diagnostic makes live unauthenticated requests and prints aggregate, non-identifying results only:
+
+```bash
+cargo run --manifest-path crates/p2p-provider/Cargo.toml --locked --example provider_diagnostic
 ```
 
 ## Desktop builds
@@ -53,7 +63,3 @@ npm exec tauri -- build --target x86_64-apple-darwin --bundles app
 ```
 
 `tauri build --no-bundle` produces the direct Windows/Linux binary and no installer. The macOS platform configuration produces `P2P Desk.app` with minimum system version 12.0. Linux output is development evidence only. GitHub Actions runs Linux verification, Windows x64 build/checks, and a native `macos-15-intel` build/check in parallel. CI artifacts do not replace final Windows 10/11 and supported Intel macOS runtime smoke testing.
-
-## Sandbox helper
-
-`scripts/use-sandbox-toolchains.sh` sets paths for the excluded local cache used by the Arena Linux workspace. It is not required on a correctly provisioned developer machine.

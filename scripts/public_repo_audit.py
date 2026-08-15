@@ -37,6 +37,9 @@ required = {
     Path("package.json"),
     Path("package-lock.json"),
     Path("rust-toolchain.toml"),
+    Path("crates/p2p-provider/Cargo.toml"),
+    Path("crates/p2p-provider/Cargo.lock"),
+    Path("docs/provider.md"),
     Path(".github/workflows/verify.yml"),
 }
 check("required public files are tracked", required <= set(tracked))
@@ -129,7 +132,11 @@ check(
     "Rust package licenses are MIT",
     all(
         'license = "MIT"' in (ROOT / relative).read_text(encoding="utf-8")
-        for relative in ["src-tauri/Cargo.toml", "crates/p2p-domain/Cargo.toml"]
+        for relative in [
+            "src-tauri/Cargo.toml",
+            "crates/p2p-domain/Cargo.toml",
+            "crates/p2p-provider/Cargo.toml",
+        ]
     ),
 )
 

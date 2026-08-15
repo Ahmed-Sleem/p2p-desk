@@ -1,6 +1,7 @@
 mod commands;
 pub mod contracts;
 pub use p2p_domain as domain;
+pub use p2p_provider as provider;
 mod platform;
 
 use std::fmt;
@@ -12,9 +13,13 @@ use tauri_plugin_window_state::StateFlags;
 #[derive(Clone)]
 pub struct RuntimeState(pub RuntimePrerequisite);
 
+#[derive(Clone)]
+pub struct ProviderRuntimeState(pub provider::LiveProviderRuntime);
+
 #[derive(Debug)]
 pub enum StartupError {
     MissingPrerequisite(String),
+    Provider(String),
     Tauri(tauri::Error),
     Io(std::io::Error),
 }
@@ -23,6 +28,9 @@ impl fmt::Display for StartupError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::MissingPrerequisite(message) => formatter.write_str(message),
+            Self::Provider(message) => {
+                write!(formatter, "Provider initialization failed: {message}")
+            }
             Self::Tauri(error) => write!(formatter, "Tauri startup failed: {error}"),
             Self::Io(error) => write!(formatter, "Local application state is unavailable: {error}"),
         }
@@ -53,8 +61,12 @@ pub fn run() -> Result<(), StartupError> {
         ));
     }
 
+    let provider = provider::LiveProviderRuntime::new()
+        .map_err(|error| StartupError::Provider(error.to_string()))?;
+
     tauri::Builder::default()
         .manage(RuntimeState(runtime))
+        .manage(ProviderRuntimeState(provider))
         .setup(|app| {
             let local_data = app.path().local_data_dir()?;
             let state_dir = commands::data_root_for(&local_data).join("state");
