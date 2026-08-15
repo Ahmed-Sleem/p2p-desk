@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 fn main() {
     if let Err(error) = p2p_desk_lib::run() {
         p2p_desk_lib::report_startup_error(&error);

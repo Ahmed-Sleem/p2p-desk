@@ -52,7 +52,13 @@ check("no Rust process or command execution", "std::process::Command" not in rus
 check("no Rust provider networking dependency", all(token not in cargo for token in ["reqwest", "ureq", "hyper =", "tauri-plugin-http"]))
 check("system WebView2 only", config["bundle"]["windows"]["webviewInstallMode"]["type"] == "skip" and "GetAvailableCoreWebView2BrowserVersionString" in rust_sources)
 check("portable no-bundle config", config["bundle"]["active"] is False and root_package["scripts"]["tauri:build"].endswith("--no-bundle"))
-check("approved product identity", config["productName"] == "P2P Desk" and config["mainBinaryName"] == "P2PDesk" and window["title"] == "P2P Desk")
+check(
+    "approved product identity and Windows GUI subsystem",
+    config["productName"] == "P2P Desk"
+    and config["mainBinaryName"] == "P2PDesk"
+    and window["title"] == "P2P Desk"
+    and 'windows_subsystem = "windows"' in rust_sources,
+)
 check("approved window policy", all([window["width"] == 1280, window["height"] == 800, window["minWidth"] == 1024, window["minHeight"] == 700, window["decorations"] is True, window["maximized"] is False, window["fullscreen"] is False, window["preventOverflow"] is True]))
 check("LocalAppData abstraction and product root", ".local_data_dir()" in rust_sources and 'join(PRODUCT_NAME)' in rust_sources)
 check("no floating npm versions", all(not str(v).startswith(("^", "~", ">", "<", "latest")) for section in [root_package.get("devDependencies", {}), app_package.get("dependencies", {}), app_package.get("devDependencies", {})] for v in section.values()))
