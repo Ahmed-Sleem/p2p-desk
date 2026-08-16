@@ -21,6 +21,7 @@ tauri-build = { version = "=2.6.3", features = [] }
 
 [dependencies]
 p2p-domain = { path = "../crates/p2p-domain" }
+p2p-persistence = { path = "../crates/p2p-persistence" }
 p2p-provider = { path = "../crates/p2p-provider" }
 serde = { version = "=1.0.229", features = ["derive"] }
 tauri = { version = "=2.11.5", features = [] }

@@ -1,0 +1,4200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>P2P Desk — Corrected GUI Baseline</title>
+    <style>
+        /* =========================================================
+           P2P Desk — user-approved black/white/lime visual baseline.
+           Product constraints and accessibility corrections applied.
+           ========================================================= */
+        :root {
+            /* Colors (style guide tokens) */
+            --bg-body: #F7F8FA;
+            --bg-card: #FFFFFF;
+            --bg-card-dark: #0D0D0D;
+            --bg-input: #F0F1F3;
+            --bg-accent: #6DFD5F;        /* Lime green accent */
+            --bg-accent-hover: #57E34B;
+            --bg-accent-soft: #E5FBE1;
+            --bg-gray-tile: #E6E6EA;
+            --bg-dark-tile: #1C1C1E;
+
+            --text-primary: #0D0D0D;
+            --text-secondary: #626262; /* AA across the approved light surfaces */
+            --text-inverse: #FFFFFF;
+
+            --border-light: #E8E8EC;
+            --border-strong: #D6D6DC;
+
+            /* Spacing system */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border radius */
+            --radius-pill: 9999px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+
+            /* Typography */
+            --font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-size-xs: 0.75rem;    /* 12px */
+            --font-size-sm: 0.875rem;   /* 14px */
+            --font-size-md: 1rem;       /* 16px */
+            --font-size-lg: 1.25rem;    /* 20px */
+            --font-size-xl: 2rem;       /* 32px */
+            --font-size-2xl: 1.75rem;   /* 28px */
+
+            /* Shadows */
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+            --shadow-pop: 0 18px 50px rgba(0, 0, 0, 0.16);
+
+            --header-height: 64px;
+            --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        html {
+            font-size: 16px; /* rem base — matches the style guide */
+        }
+
+        body {
+            font-size: var(--font-size-sm); /* 14px base for generic copy */
+            line-height: 1.5;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button,
+        [role="button"],
+        select {
+            cursor: pointer;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--text-primary);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 5px rgba(109, 253, 95, 0.95);
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+            opacity: 1;
+        }
+
+        /* Scrolling remains functional; scrollbar chrome stays hidden. */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        .workspace-scroll,
+        .table-scroll,
+        .tabs,
+        .sidebar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .skip-link {
+            position: fixed;
+            left: 24px;
+            top: -60px;
+            z-index: 100;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-pill);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-card);
+            font-weight: 700;
+            font-size: var(--font-size-xs);
+            text-decoration: none;
+        }
+        .skip-link:focus {
+            top: 24px;
+        }
+
+        /* Natural viewport scale: density comes from the approved tokens. */
+        .app-shell {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            width: 100vw;
+            height: 100vh;
+            min-width: 0;
+            min-height: 0;
+            background: var(--bg-body);
+        }
+
+        /* --- Sidebar: collapsible icon rail (DEFAULT COLLAPSED) --- */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 64px;
+            min-height: 0;
+            padding: var(--spacing-lg) 0 var(--spacing-md);
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-light);
+            color: var(--text-primary);
+            transition: width 180ms ease;
+        }
+
+        .app-shell.expanded .sidebar {
+            width: 224px;
+            align-items: stretch;
+            padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            margin-bottom: var(--spacing-xl);
+            padding: 0;
+            border: 0;
+        }
+
+        .app-shell.expanded .brand {
+            justify-content: flex-start;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 40px;
+            height: 40px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: var(--radius-md);
+            background: var(--bg-card-dark);
+            color: var(--bg-accent);
+        }
+
+        .brand-logo {
+            width: 24px;
+            height: 24px;
+            flex: 0 0 auto;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .brand-copy {
+            display: none;
+        }
+
+        .app-shell.expanded .brand-copy {
+            display: block;
+            min-width: 0;
+        }
+
+        .brand-copy strong {
+            display: block;
+            font-family: var(--font-family);
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+        }
+
+        .nav-label {
+            display: none;
+        }
+
+        .app-shell.expanded .nav-label {
+            display: block;
+            margin: 0 var(--spacing-md) var(--spacing-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            width: 100%;
+        }
+
+        .app-shell.expanded .nav-list {
+            align-items: stretch;
+            padding: 0 var(--spacing-sm);
+        }
+
+        .nav-button {
+            position: relative;
+            display: flex;
+            width: 44px;
+            height: 44px;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .app-shell.expanded .nav-button {
+            width: 100%;
+            height: auto;
+            min-height: 40px;
+            justify-content: flex-start;
+            gap: var(--spacing-sm);
+            padding: 0 var(--spacing-md);
+        }
+
+        .nav-button .icon {
+            width: 20px;
+            height: 20px;
+            flex: 0 0 auto;
+        }
+
+        .nav-button span {
+            display: none;
+        }
+
+        .app-shell.expanded .nav-button span {
+            display: inline;
+            white-space: nowrap;
+        }
+
+        .nav-button:hover {
+            background: var(--bg-body);
+        }
+
+        .nav-button[aria-current="page"] {
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .nav-button[aria-current="page"]::before {
+            position: absolute;
+            left: -7px;
+            width: 3px;
+            height: 20px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-accent);
+            content: "";
+        }
+
+        .app-shell.expanded .nav-button[aria-current="page"]::before {
+            left: -8px;
+        }
+
+        .icon {
+            width: 19px;
+            height: 19px;
+            flex: 0 0 auto;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .sidebar-bottom {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-top: auto;
+            padding-top: var(--spacing-md);
+        }
+
+        .source-mini {
+            display: grid;
+            width: 44px;
+            min-height: 44px;
+            place-items: center;
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+        }
+
+        .source-mini-head {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-primary);
+            font-size: 0;
+            font-weight: 600;
+        }
+
+        .pulse-dot,
+        .status-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            flex: 0 0 auto;
+            border: 2px solid var(--text-primary);
+            border-radius: 50%;
+            background: var(--bg-accent);
+        }
+
+        .source-mini p,
+        .preview-stamp {
+            display: none;
+        }
+
+        .app-shell.expanded .sidebar-bottom {
+            align-items: stretch;
+            padding-inline: var(--spacing-sm);
+        }
+
+        .app-shell.expanded .source-mini {
+            display: block;
+            width: 100%;
+            padding: var(--spacing-md);
+        }
+
+        .app-shell.expanded .source-mini-head {
+            font-size: var(--font-size-xs);
+        }
+
+        .app-shell.expanded .source-mini p {
+            display: block;
+            margin-top: var(--spacing-xs);
+            color: var(--text-secondary);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .app-shell.expanded .preview-stamp {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-pill);
+            background: var(--bg-accent-soft);
+            color: var(--text-primary);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* --- Main shell & topbar --- */
+        .main-shell {
+            display: grid;
+            min-width: 0;
+            min-height: 0;
+            grid-template-columns: minmax(0, 1fr); /* fix: implicit auto column sized to content and broke internal scrolling on narrow widths */
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            min-height: var(--header-height);
+            padding: 0 var(--spacing-lg);
+            border-bottom: 1px solid var(--border-light);
+            background: var(--bg-card);
+        }
+
+        .page-heading {
+            min-width: 0;
+            flex: 0 1 auto;
+        }
+
+        .page-heading h1 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-2xl);   /* 28px — style guide page title */
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .runtime-status {
+            display: flex;
+            min-height: 40px;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 0 12px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-accent-soft);
+            color: var(--text-primary);
+        }
+
+        .runtime-copy {
+            display: grid;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .runtime-copy strong {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .runtime-copy small {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .sidebar-toggle {
+            flex: 0 0 auto;
+        }
+
+        .review-control {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 6px 8px 6px 14px;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-card);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .review-control select {
+            height: 32px;
+            padding: 0 10px;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .date-block {
+            padding: 0 4px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            text-align: right;
+        }
+
+        .date-block strong {
+            display: block;
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+        }
+
+        .icon-button,
+        .button {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            transition: all 0.2s ease;
+        }
+
+        .icon-button {
+            width: 40px;
+            padding: 0;
+            background: var(--bg-card);
+            box-shadow: var(--shadow-card);
+            color: var(--text-secondary);
+        }
+
+        .icon-button:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .button {
+            padding: 0 20px;
+        }
+
+        .button:hover {
+            background: var(--bg-gray-tile);
+        }
+
+        .button.primary {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+        }
+
+        .button.primary:hover {
+            background: var(--bg-accent-hover);
+        }
+
+        .button.quiet {
+            min-height: 32px;
+            padding: 0 12px;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .button.quiet:hover {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .button .icon,
+        .icon-button .icon {
+            width: 17px;
+            height: 17px;
+        }
+
+        /* --- Workspace --- */
+        .workspace-scroll {
+            min-width: 0;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .workspace {
+            width: 100%;
+            max-width: 1440px;   /* style guide content cap */
+            min-height: 100%;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        /* --- Context bar --- */
+        .context-bar {
+            position: relative;
+            z-index: 3;
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1fr) auto;
+            gap: var(--spacing-md);
+            align-items: end;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            margin: 0 0 6px 2px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .field-control {
+            display: flex;
+            width: 100%;
+            min-width: 0;
+            min-height: 44px;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 0 16px;
+            overflow: hidden;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+        }
+
+        .field-control input,
+        .field-control select {
+            min-width: 0;
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: inherit;
+            font-weight: inherit;
+            font-size: var(--font-size-sm);
+        }
+
+        .field-control .unit {
+            margin-left: auto;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .pair-control {
+            justify-content: space-between;
+        }
+
+        .pair-control > .icon {
+            flex: 0 0 auto;
+            margin-left: var(--spacing-sm);
+        }
+
+        .pair-token {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .pair-token > span {
+            white-space: nowrap;
+        }
+
+        .asset-coin {
+            display: grid;
+            width: 24px;
+            height: 24px;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--bg-card-dark);
+            color: var(--text-inverse);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+        }
+
+        .arrow {
+            color: var(--text-secondary);
+        }
+
+        .payment-tags {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            gap: var(--spacing-xs);
+            overflow: hidden;
+        }
+
+        .mini-tag {
+            flex: 0 1 auto;
+            min-width: 0;
+            padding: 3px 10px;
+            overflow: hidden;
+            border-radius: var(--radius-pill);
+            background: var(--bg-gray-tile);
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .context-actions {
+            display: flex;
+            flex: 0 0 auto;
+            gap: var(--spacing-sm);
+            white-space: nowrap;
+        }
+
+        /* --- Intent strip / segmented --- */
+        .segmented {
+            display: flex;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs);
+            border-radius: var(--radius-pill);
+            background: var(--bg-input);
+        }
+
+        .segment {
+            min-height: 32px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .segment[aria-pressed="true"] {
+            background: var(--bg-card-dark);
+            color: var(--text-inverse);
+        }
+
+        /* --- Views --- */
+        .view {
+            display: none;
+            animation: reveal 180ms ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes reveal {
+            from {
+                opacity: 0;
+                transform: translateY(3px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notice {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: var(--spacing-md);
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--bg-accent);
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-card);
+            color: var(--text-primary);
+        }
+
+        .notice strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+        }
+
+        .notice > div {
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            line-height: 1.5;
+        }
+
+        .notice .icon {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            flex: 0 0 auto;
+            color: var(--text-secondary);
+        }
+
+        .notice .button {
+            min-height: 32px;
+            margin-left: var(--spacing-sm);
+            padding-left: var(--spacing-lg);
+            border-left: 1px solid var(--border-light);
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: var(--font-size-xs);
+        }
+
+        /* --- Grids --- */
+        .grid {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .metric-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .two-column {
+            grid-template-columns: minmax(0, 1.75fr) minmax(280px, 0.75fr);
+        }
+
+        .equal-two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .three-column {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        /* --- Cards & panels --- */
+        .panel,
+        .metric-card {
+            border: 0;
+            background: var(--bg-card);
+            box-shadow: var(--shadow-card);
+        }
+
+        .panel {
+            min-width: 0;
+            border-radius: var(--radius-lg);
+        }
+
+        .metric-card {
+            position: relative;
+            min-width: 0;
+            min-height: 150px;
+            padding: var(--spacing-lg);
+            overflow: hidden;
+            border-radius: var(--radius-lg);
+        }
+
+        .metric-card::after {
+            display: none;
+        }
+
+        /* Buy and Sell side cards share the signature treatment. */
+        .metric-card.side-primary {
+            background: var(--bg-card-dark);
+            color: var(--text-inverse);
+        }
+
+        .metric-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .metric-card.side-primary .metric-head {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .metric-head .icon-button {
+            width: 32px;
+            min-height: 32px;
+            height: 32px;
+            border: 0;
+            box-shadow: none;
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .metric-card.side-primary .metric-head .icon-button {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text-inverse);
+        }
+
+        .metric-value {
+            margin-top: var(--spacing-sm);
+            color: var(--text-primary);
+            font-size: var(--font-size-2xl);   /* 28px — style guide metric number */
+            font-weight: 600;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric-card.side-primary .metric-value {
+            color: var(--text-inverse);
+        }
+
+        .metric-value small {
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            letter-spacing: 0;
+        }
+
+        .metric-card.side-primary .metric-value small {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .metric-caption {
+            margin-top: var(--spacing-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .metric-card.side-primary .metric-caption {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .metric-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        /* Chips (pill, style guide palette) */
+        .chip {
+            display: inline-flex;
+            min-height: 24px;
+            align-items: center;
+            gap: 5px;
+            padding: 0 12px;
+            border-radius: var(--radius-pill);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .chip.success {
+            background: var(--bg-accent-soft);
+            color: var(--text-primary);
+        }
+
+        .chip.warning {
+            background: var(--bg-gray-tile);
+            color: var(--text-primary);
+        }
+
+        .chip.info {
+            background: var(--bg-gray-tile);
+            color: var(--text-primary);
+        }
+
+        .chip.neutral {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+        }
+
+        .chip.buy {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+        }
+
+        .chip.sell {
+            background: var(--bg-dark-tile);
+            color: var(--text-inverse);
+        }
+
+        .metric-card.side-primary .chip.sell {
+            background: var(--text-inverse);
+            color: var(--text-primary);
+        }
+
+        .metric-card.side-primary .chip.neutral {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .panel + .panel,
+        .grid + .panel,
+        .panel + .grid,
+        .metric-grid + .grid,
+        .metric-grid + .panel,
+        .tabs + .grid,
+        .tabs + .panel {
+            margin-top: var(--spacing-md);
+        }
+
+        /* --- Panel header / body --- */
+        .panel-header {
+            display: flex;
+            min-height: 60px;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .panel-title {
+            min-width: 0;
+        }
+
+        .panel-title h2,
+        .panel-title h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .panel-title p {
+            display: none; /* minimal — descriptions hidden, revealed on hover */
+        }
+
+        .panel-title:hover p {
+            display: block;
+            margin-top: 4px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .panel-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex: 0 0 auto;
+        }
+
+        .panel-body {
+            padding: var(--spacing-lg);
+        }
+
+        /* --- Charts --- */
+        .chart-wrap {
+            position: relative;
+            min-height: 260px;
+            padding: var(--spacing-sm) var(--spacing-sm) 0 0;
+        }
+
+        .chart-wrap.compact {
+            min-height: 205px;
+        }
+
+        .chart-wrap svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            overflow: visible;
+        }
+
+        .chart-gridline {
+            stroke: var(--border-light);
+            stroke-width: 1;
+        }
+
+        .chart-axis {
+            fill: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: 11px;
+        }
+
+        .chart-buy {
+            stroke: #0D0D0D;
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        .chart-sell {
+            stroke: var(--text-secondary);
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 6 4;
+        }
+
+        .chart-area-buy {
+            fill: url(#buyFade);
+        }
+
+        .chart-area-gold {
+            fill: url(#goldFade);
+        }
+
+        .chart-point {
+            fill: var(--bg-card);
+            stroke-width: 2.5;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .legend-line {
+            display: inline-block;
+            width: 18px;
+            height: 3px;
+            margin-right: 6px;
+            vertical-align: middle;
+            border-radius: 3px;
+            background: #0D0D0D;
+        }
+
+        .legend-line.gold {
+            height: 0;
+            border-top: 2px dashed var(--text-secondary);
+            background: none;
+        }
+
+        .annotation {
+            transition: opacity 140ms ease;
+        }
+
+        html:not([data-annotation="on"]) .annotation {
+            opacity: 0;
+        }
+
+        /* --- Context list / callout / formula --- */
+        .context-list {
+            display: grid;
+            gap: var(--spacing-sm);
+            margin: 0;
+        }
+
+        .context-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: var(--spacing-md);
+            align-items: start;
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .context-row:last-child {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .context-row dt {
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .context-row dd {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .callout {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-left: 3px solid var(--bg-accent);
+            border-radius: var(--radius-sm) var(--radius-md) var(--radius-md) var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+        }
+
+        /* --- Tables --- */
+        .table-scroll {
+            width: 100%;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-xs);
+        }
+
+        th,
+        td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--border-light);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            position: sticky;
+            z-index: 1;
+            top: 0;
+            background: var(--bg-card); /* white, matching the table body */
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-body);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .price {
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .merchant {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .merchant-mark {
+            display: grid;
+            width: 26px;
+            height: 26px;
+            place-items: center;
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+        }
+
+        .merchant small {
+            display: block;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            min-height: 44px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-top: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        /* --- Tabs --- */
+        .tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            overflow: auto;
+        }
+
+        .tab {
+            min-height: 36px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-card);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--bg-card-dark);
+            color: var(--text-inverse);
+        }
+
+        /* --- Bar charts --- */
+        .bar-chart {
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 120px minmax(80px, 1fr) 46px;
+            gap: var(--spacing-sm);
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .bar-track {
+            height: 10px;
+            overflow: hidden;
+            border-radius: var(--radius-pill);
+            background: var(--bg-input);
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--bg-accent);
+        }
+
+        .bar-fill.gold {
+            background: var(--bg-dark-tile);
+        }
+
+        .bar-row strong {
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            text-align: right;
+        }
+
+        /* --- Formula --- */
+        .formula {
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .formula-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+        }
+
+        .formula-item strong {
+            display: block;
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+        }
+
+        .formula-item code {
+            display: block;
+            margin-top: 6px;
+            overflow-wrap: anywhere;
+            color: var(--text-secondary);
+            font-family: var(--mono);
+            font-size: var(--font-size-xs);
+        }
+
+        /* --- Health --- */
+        .health-hero {
+            display: grid;
+            grid-template-columns: 80px minmax(0, 1fr) auto;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        .health-score {
+            display: grid;
+            width: 72px;
+            height: 72px;
+            place-items: center;
+            border: 7px solid var(--bg-gray-tile);
+            border-top-color: var(--bg-accent);
+            border-radius: 50%;
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+        }
+
+        .health-copy h2 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+        }
+
+        .health-copy p {
+            margin: 5px 0 0;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .check-list {
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .check-item {
+            display: grid;
+            grid-template-columns: 24px minmax(0, 1fr) auto;
+            gap: var(--spacing-sm);
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .check-item:last-child {
+            border-bottom: 0;
+        }
+
+        .check-icon {
+            display: grid;
+            width: 24px;
+            height: 24px;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--bg-accent-soft);
+            color: var(--text-primary);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+        }
+
+        .check-item strong {
+            display: block;
+            font-size: var(--font-size-xs);
+        }
+
+        .check-item small {
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        /* --- Settings --- */
+        .settings-grid {
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .setting-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(180px, 0.55fr);
+            gap: var(--spacing-lg);
+            align-items: center;
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .setting-row:last-child {
+            border-bottom: 0;
+        }
+
+        .setting-copy strong {
+            display: block;
+            font-size: var(--font-size-sm);
+        }
+
+        .setting-copy p {
+            margin: 4px 0 0;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .setting-control {
+            justify-self: end;
+        }
+
+        .number-control {
+            display: flex;
+            width: 160px;
+            min-height: 40px;
+            align-items: center;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-input);
+        }
+
+        .number-control input {
+            width: 100%;
+            min-width: 0;
+            padding: 0 10px;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            text-align: right;
+        }
+
+        .number-control span {
+            padding-right: 14px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 26px;
+            padding: 0;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: var(--bg-gray-tile);
+            transition: background 140ms ease;
+        }
+
+        .switch::after {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            content: "";
+            transition: transform 140ms ease;
+        }
+
+        .switch[aria-checked="true"] {
+            background: var(--bg-accent);
+        }
+
+        .switch[aria-checked="true"]::after {
+            transform: translateX(18px);
+        }
+
+        /* --- Empty / loading / error states --- */
+        .empty-review {
+            display: none;
+            min-height: 360px;
+            place-items: center;
+            padding: var(--spacing-xl);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .empty-review-inner {
+            max-width: 430px;
+        }
+
+        .state-illustration {
+            display: grid;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto var(--spacing-md);
+            place-items: center;
+            border-radius: var(--radius-lg);
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .state-illustration .icon {
+            width: 30px;
+            height: 30px;
+        }
+
+        .empty-review h2 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+        }
+
+        .empty-review p {
+            margin: 7px auto 18px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        html[data-ui-state="loading"] .state-illustration {
+            animation: breathe 1.2s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            50% {
+                transform: scale(0.94);
+                opacity: 0.65;
+            }
+        }
+
+        html[data-ui-state="error"] .state-illustration {
+            background: var(--bg-gray-tile);
+            color: var(--text-primary);
+        }
+
+        html:not([data-ui-state="complete"]) .view.active > :not(.empty-review) {
+            display: none;
+        }
+
+        html:not([data-ui-state="complete"]) .view.active .empty-review {
+            display: grid;
+        }
+
+        /* --- Toast / dialog / ribbon --- */
+        .toast {
+            position: fixed;
+            z-index: 60;
+            right: 24px;
+            bottom: 24px;
+            max-width: 340px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--bg-card-dark);
+            color: var(--text-inverse);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-pop);
+            font-size: var(--font-size-xs);
+            transform: translateY(16px);
+            opacity: 0;
+            pointer-events: none;
+            transition:
+                opacity 180ms ease,
+                transform 180ms ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        dialog {
+            position: fixed;
+            inset: 0;
+            margin: auto; /* re-center: the * reset above kills the UA margin:auto */
+            width: min(620px, calc(100vw - 44px));
+            max-height: calc(100vh - 48px);
+            overflow: auto;
+            padding: 0;
+            border: 0;
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-pop);
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        .dialog-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .dialog-head h2 {
+            margin: 0;
+            font-size: var(--font-size-md);
+            font-weight: 600;
+        }
+
+        .dialog-body {
+            padding: var(--spacing-lg);
+        }
+
+        .dialog-body p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .review-ribbon {
+            position: fixed;
+            z-index: 40;
+            right: -41px;
+            top: 112px;
+            padding: 7px 46px;
+            transform: rotate(90deg);
+            border: 0;
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        /* --- Responsive: natural-scale viewport breakpoints --- */
+        @media (max-width: 1180px) { /* compact navigation rail */
+            .app-shell .sidebar,
+            .app-shell.expanded .sidebar {
+                width: 64px;
+                align-items: center;
+                padding: var(--spacing-lg) 0 var(--spacing-md);
+            }
+
+            .app-shell.expanded .brand {
+                justify-content: center;
+                gap: 0;
+                margin-bottom: var(--spacing-xl);
+                padding: 0;
+                border-bottom: 0;
+            }
+
+            .app-shell .brand-copy,
+            .app-shell .nav-label,
+            .app-shell .nav-button span,
+            .app-shell.expanded .source-mini p,
+            .app-shell.expanded .preview-stamp {
+                display: none;
+            }
+
+            .app-shell.expanded .source-mini {
+                display: grid;
+                width: 44px;
+                min-height: 44px;
+                padding: 0;
+                place-items: center;
+            }
+
+            .app-shell.expanded .source-mini-head {
+                font-size: 0;
+            }
+
+            .app-shell .brand-mark,
+            .app-shell.expanded .brand-mark {
+                display: grid;
+            }
+
+            .app-shell .nav-button,
+            .app-shell.expanded .nav-button {
+                width: 44px;
+                height: 44px;
+                min-height: 44px;
+                justify-content: center;
+                gap: 0;
+                padding: 0;
+            }
+
+            .runtime-copy,
+            .date-block {
+                display: none;
+            }
+
+            .runtime-status {
+                width: 40px;
+                padding: 0;
+                justify-content: center;
+            }
+
+            .context-bar {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            .context-actions {
+                grid-column: 1 / -1;
+                justify-content: flex-end;
+            }
+
+            .metric-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) { /* single-column analytical layout */
+            .topbar {
+                padding-inline: var(--spacing-md);
+            }
+
+            .workspace {
+                padding-inline: var(--spacing-md);
+            }
+
+            .review-control span,
+            .date-block {
+                display: none;
+            }
+
+            .context-bar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .context-actions {
+                grid-column: 1 / -1;
+                justify-content: flex-end;
+            }
+
+            .two-column,
+            .equal-two,
+            .three-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) { /* narrow/200%-zoom layout */
+            .topbar {
+                flex-wrap: wrap;
+                row-gap: var(--spacing-sm);
+                padding-top: var(--spacing-sm);
+                padding-bottom: var(--spacing-sm);
+            }
+
+            .page-heading {
+                flex: 1 1 auto;
+            }
+
+            .topbar > .segmented {
+                order: 3;
+                width: 100%;
+            }
+
+            .topbar > .segmented .segment {
+                min-width: 0;
+                flex: 1 1 0;
+                padding-inline: var(--spacing-xs);
+            }
+
+            .topbar-actions {
+                order: 4;
+                width: 100%;
+                min-width: 0;
+                flex: 1 1 100%;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .review-control {
+                min-width: 0;
+                flex: 1 1 112px;
+                padding-left: var(--spacing-sm);
+            }
+
+            .review-control select {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .context-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .context-actions {
+                grid-column: auto;
+                justify-content: stretch;
+            }
+
+            .context-actions .button {
+                flex: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+</style>
+  </head>
+  <body>
+
+    <svg aria-hidden="true" width="0" height="0" style="position: absolute">
+      <symbol id="i-mark" viewBox="0 0 24 24">
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M18.011 13H20c-.367 2.5551-2.32 4.6825-4.9766 5.6162V20H8.97661v-1.3838C6.31996 17.6825 4.36697 15.5551 4 13h14.011Zm0 0c1.0995-.0059 1.989-.8991 1.989-2 0-.8637-.5475-1.59948-1.3143-1.87934M18.011 13H18m0-3.99997c.2409 0 .4718.04258.6857.12063m0 0c.8367-1.0335.7533-2.67022-.2802-3.50694-1.0335-.83672-2.5496-.6772-3.3864.35631-.293-1.50236-1.7485-2.15377-3.2509-1.8607-1.5023.29308-2.48263 1.74856-2.18956 3.25092C8.9805 6.17263 7.6182 5.26418 6.15462 6.00131 4.967 6.59945 4.45094 8.19239 5.04909 9.38002m0 0C4.37083 9.66467 4 10.3357 4 11.1174 4 12.1571 4.84288 13 5.88263 13m-.83354-3.61998c.2866-.12029 1.09613-.40074 2.04494.3418m5.27497-.89091c1.0047-.4589 2.1913-.01641 2.6502.98832"
+        />
+      </symbol>
+      <symbol id="i-overview" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="2" />
+        <rect x="14" y="3" width="7" height="7" rx="2" />
+        <rect x="3" y="14" width="7" height="7" rx="2" />
+        <rect x="14" y="14" width="7" height="7" rx="2" />
+      </symbol>
+      <symbol id="i-offers" viewBox="0 0 24 24">
+        <path d="M4 5h16M4 12h16M4 19h16" />
+        <circle cx="8" cy="5" r="1.5" />
+        <circle cx="16" cy="12" r="1.5" />
+        <circle cx="10" cy="19" r="1.5" />
+      </symbol>
+      <symbol id="i-analysis" viewBox="0 0 24 24">
+        <path d="M4 19V9m6 10V5m6 14v-7m4 7H2" />
+      </symbol>
+      <symbol id="i-history" viewBox="0 0 24 24">
+        <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+        <path d="M3 3v5h5M12 7v5l3 2" />
+      </symbol>
+      <symbol id="i-health" viewBox="0 0 24 24">
+        <path d="M3 12h4l2.2-5 4.1 10 2.2-5H21" />
+        <path
+          d="M12 22C6 19 3 15.8 3 10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.8-3 9-9 12Z"
+        />
+      </symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" />
+        <path
+          d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"
+        />
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <path d="M12 3v12m-4-4 4 4 4-4M4 19h16" />
+      </symbol>
+      <symbol id="i-help" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.6 9a2.6 2.6 0 1 1 3.3 2.5c-.9.3-.9 1.1-.9 1.5M12 17h.01" />
+      </symbol>
+      <symbol id="i-info" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v6M12 7h.01" />
+      </symbol>
+      <symbol id="i-filter" viewBox="0 0 24 24">
+        <path d="M4 6h16M7 12h10m-7 6h4" />
+      </symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24">
+        <path d="m9 7 5 5-5 5" />
+      </symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24">
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <circle cx="12" cy="12" r="2.5" />
+      </symbol>
+      <symbol id="i-note" viewBox="0 0 24 24">
+        <path d="M5 3h11l3 3v15H5z" />
+        <path d="M8 11h8M8 15h6M15 3v4h4" />
+      </symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24">
+        <path d="M20 7v5h-5M4 17v-5h5" />
+        <path d="M18 12a6 6 0 0 0-10-4.5L4 12m2 0a6 6 0 0 0 10 4.5l4-4.5" />
+      </symbol>
+      <symbol id="i-database" viewBox="0 0 24 24">
+        <ellipse cx="12" cy="5" rx="8" ry="3" />
+        <path
+          d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"
+        />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6.5" />
+        <path d="m15.5 15.5 5 5" />
+      </symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24">
+        <path d="M12 3 2.5 20h19z" />
+        <path d="M12 9v5M12 17h.01" />
+      </symbol>
+      <symbol id="i-empty" viewBox="0 0 24 24">
+        <path d="M4 7h16v13H4zM7 3h10v4" />
+        <path d="M8 12h8M8 16h5" />
+      </symbol>
+      <symbol id="i-panel" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2.5" />
+        <line x1="9.5" y1="4" x2="9.5" y2="20" />
+      </symbol>
+    </svg>
+
+    <div class="app-shell">
+      <a class="skip-link" href="#workspace">Skip to workspace</a>
+      <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark">
+            <svg class="brand-logo" aria-hidden="true"><use href="#i-mark" /></svg>
+          </div>
+          <div class="brand-copy"><strong>P2P Desk</strong></div>
+        </div>
+        <div class="nav-label">Workspace</div>
+        <nav>
+          <ul class="nav-list">
+            <li>
+              <button
+                class="nav-button"
+                data-page="overview" title="Overview" aria-label="Overview"
+                aria-current="page"
+              >
+                <svg class="icon"><use href="#i-overview" /></svg
+                ><span>Overview</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-button" data-page="offers" title="Offers" aria-label="Offers">
+                <svg class="icon"><use href="#i-offers" /></svg
+                ><span>Offers</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-button" data-page="analysis" title="Analysis" aria-label="Analysis">
+                <svg class="icon"><use href="#i-analysis" /></svg
+                ><span>Analysis</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-button" data-page="history" title="History" aria-label="History">
+                <svg class="icon"><use href="#i-history" /></svg
+                ><span>History</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-button" data-page="health" title="Data Health" aria-label="Data Health">
+                <svg class="icon"><use href="#i-health" /></svg
+                ><span>Data Health</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-button" data-page="settings" title="Settings" aria-label="Settings">
+                <svg class="icon"><use href="#i-settings" /></svg
+                ><span>Settings</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+        <div class="sidebar-bottom">
+          <div
+            class="source-mini"
+            role="status"
+            aria-label="Experimental Binance P2P Web source"
+            title="Experimental Binance P2P Web source"
+          >
+            <div class="source-mini-head">
+              <span class="pulse-dot" aria-hidden="true"></span>Experimental source
+            </div>
+            <p>Binance P2P Web<br />Unsupported website contract</p>
+          </div>
+          <div class="preview-stamp">
+            <svg class="icon"><use href="#i-eye" /></svg
+            ><span>Illustrative GUI preview</span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main-shell">
+        <header class="topbar">
+          <button
+            class="icon-button sidebar-toggle"
+            id="sidebar-toggle"
+            aria-label="Toggle sidebar"
+            aria-expanded="false"
+            aria-controls="sidebar"
+          >
+            <svg class="icon"><use href="#i-panel" /></svg>
+          </button>
+          <div class="page-heading">
+            <h1 id="page-title">Overview</h1>
+          </div>
+          <div class="segmented" role="group" aria-label="Intent selection">
+            <button
+              class="segment intent-button"
+              data-intent="both"
+              aria-pressed="true"
+            >
+              Compare both
+            </button>
+            <button
+              class="segment intent-button"
+              data-intent="buy"
+              aria-pressed="false"
+            >
+              Buy asset
+            </button>
+            <button
+              class="segment intent-button"
+              data-intent="sell"
+              aria-pressed="false"
+            >
+              Sell asset
+            </button>
+          </div>
+          <div class="topbar-actions">
+            <label class="review-control"
+              ><span>Review state</span
+              ><select id="review-state" aria-label="Preview interface state">
+                <option value="complete">Complete</option>
+                <option value="loading">Loading</option>
+                <option value="empty">Empty</option>
+                <option value="error">Error</option>
+              </select></label
+            >
+            <div
+              class="runtime-status"
+              role="status"
+              aria-label="Experimental Binance P2P Web source. Complete illustrative state. Auto-refresh on every 20 seconds. Last complete update 15 August 2026 at 17:06 Africa/Cairo."
+              title="Experimental source · Complete · Auto-refresh 20s · Last update 17:06"
+            >
+              <span class="status-dot" aria-hidden="true"></span>
+              <span class="runtime-copy"
+                ><strong>Experimental source</strong
+                ><small data-runtime-state>Complete · Auto-refresh 20s</small></span
+              >
+            </div>
+            <button
+              class="icon-button preview-action"
+              aria-label="Refresh the applied context"
+              title="Refresh the applied context"
+            >
+              <svg class="icon"><use href="#i-refresh" /></svg>
+            </button>
+            <div class="date-block">
+              <strong>15 Aug 2026 · 17:06</strong>Last complete · Africa/Cairo
+            </div>
+            <button
+              class="icon-button preview-action"
+              aria-label="Export current view"
+            >
+              <svg class="icon"><use href="#i-download" /></svg>
+            </button>
+            <button
+              class="icon-button"
+              data-open-dialog
+              aria-label="Open calculation help"
+            >
+              <svg class="icon"><use href="#i-help" /></svg>
+            </button>
+          </div>
+        </header>
+
+        <main class="workspace-scroll" id="workspace" tabindex="-1">
+          <div class="workspace">
+            <section class="context-bar" aria-label="Shared decision context">
+              <div class="field">
+                <div class="field-label">
+                  Market pair <span>Validated</span>
+                </div>
+                <button class="field-control pair-control preview-action">
+                  <span class="pair-token"
+                    ><span class="asset-coin">₮</span>USDT
+                    <span class="arrow">/</span> EGP</span
+                  ><svg class="icon"><use href="#i-chevron" /></svg>
+                </button>
+              </div>
+              <label class="field"
+                ><span class="field-label">Transaction amount</span
+                ><span class="field-control"
+                  ><input
+                    id="amount"
+                    inputmode="decimal"
+                    value="50,000"
+                    aria-label="Transaction amount"
+                  /><span class="unit">EGP</span></span
+                ></label
+              >
+              <div class="field">
+                <div class="field-label">Payment context <span>ANY</span></div>
+                <button class="field-control pair-control preview-action">
+                  <span class="payment-tags"
+                    ><span class="mini-tag">Bank transfer</span
+                    ><span class="mini-tag">Vodafone Cash</span></span
+                  ><svg class="icon"><use href="#i-chevron" /></svg>
+                </button>
+              </div>
+              <div class="field">
+                <div class="field-label">Merchant filters</div>
+                <button class="field-control pair-control preview-action">
+                  <span>≥95% · ≥100 orders</span
+                  ><svg class="icon"><use href="#i-chevron" /></svg>
+                </button>
+              </div>
+              <div class="context-actions">
+                <button class="button preview-action">
+                  <svg class="icon"><use href="#i-filter" /></svg>More filters</button
+                ><button class="button primary" id="apply-context">
+                  Apply
+                </button>
+              </div>
+            </section>
+
+            <section class="view active" data-view="overview">
+              <div class="empty-review">
+                <div class="empty-review-inner">
+                  <div class="state-illustration">
+                    <svg class="icon"><use href="#i-empty" /></svg>
+                  </div>
+                  <h2 data-state-title>Preparing the two-sided overview</h2>
+                  <p data-state-copy>
+                    The finished app will keep the selected amount and payment
+                    context visible while it validates both sides.
+                  </p>
+                  <button class="button primary state-action">
+                    Cancel refresh
+                  </button>
+                </div>
+              </div>
+              <div class="notice">
+                <svg class="icon"><use href="#i-info" /></svg>
+                <div>
+                  <strong>Experimental Binance P2P Web</strong>This is an
+                  unsupported website search contract. All values in this HTML
+                  are illustrative layout content—not live, cached, historical,
+                  or provider data.
+                </div>
+                <button class="button" data-open-dialog>Source policy</button>
+              </div>
+              <div class="grid metric-grid">
+                <article class="metric-card side-primary">
+                  <div class="metric-head">
+                    <span>Buy asset · best eligible</span
+                    ><button
+                      class="icon-button"
+                      data-open-dialog
+                      aria-label="Explain buy price"
+                    >
+                      <svg class="icon"><use href="#i-info" /></svg>
+                    </button>
+                  </div>
+                  <div class="metric-value">
+                    50.84 <small>EGP / USDT</small>
+                  </div>
+                  <div class="metric-caption">
+                    Lowest validated price matching 50,000 EGP and the shared
+                    filters.
+                  </div>
+                  <div class="metric-foot">
+                    <span class="chip buy">Advertiser sells</span
+                    ><span>41 eligible</span>
+                  </div>
+                </article>
+                <article class="metric-card side-primary">
+                  <div class="metric-head">
+                    <span>Sell asset · best eligible</span
+                    ><button
+                      class="icon-button"
+                      data-open-dialog
+                      aria-label="Explain sell price"
+                    >
+                      <svg class="icon"><use href="#i-info" /></svg>
+                    </button>
+                  </div>
+                  <div class="metric-value">
+                    50.47 <small>EGP / USDT</small>
+                  </div>
+                  <div class="metric-caption">
+                    Highest validated price matching the same amount and payment
+                    context.
+                  </div>
+                  <div class="metric-foot">
+                    <span class="chip sell">Advertiser buys</span
+                    ><span>37 eligible</span>
+                  </div>
+                </article>
+                <article class="metric-card">
+                  <div class="metric-head">
+                    <span>Compatible gross spread</span
+                    ><button
+                      class="icon-button"
+                      data-open-dialog
+                      aria-label="Explain compatible spread"
+                    >
+                      <svg class="icon"><use href="#i-info" /></svg>
+                    </button>
+                  </div>
+                  <div class="metric-value">
+                    0.73 <small>% descriptive</small>
+                  </div>
+                  <div class="metric-caption">
+                    Same amount and compatible payment route; not profit or an
+                    execution promise.
+                  </div>
+                  <div class="metric-foot">
+                    <span class="chip warning">Costs excluded</span
+                    ><span>Formula available</span>
+                  </div>
+                </article>
+                <article class="metric-card">
+                  <div class="metric-head">
+                    <span>Validated coverage</span
+                    ><button
+                      class="icon-button"
+                      data-open-dialog
+                      aria-label="Explain coverage"
+                    >
+                      <svg class="icon"><use href="#i-info" /></svg>
+                    </button>
+                  </div>
+                  <div class="metric-value">41.7 <small>% sampled</small></div>
+                  <div class="metric-caption">
+                    200 validated rows viewed from 480 provider-reported
+                    advertisements.
+                  </div>
+                  <div class="metric-foot">
+                    <span class="chip success">0 hard failures</span
+                    ><span>4 duplicates</span>
+                  </div>
+                </article>
+              </div>
+
+              <div class="grid two-column">
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Amount-aware quote frontier</h2>
+                      <p>
+                        How the estimated eligible price changes as the shared
+                        fiat amount changes.
+                      </p>
+                    </div>
+                    <div class="panel-actions">
+                      <button class="button quiet" id="toggle-annotation">
+                        <svg class="icon"><use href="#i-note" /></svg
+                        >Annotation</button
+                      ><button class="button quiet preview-action">
+                        View data table
+                      </button>
+                    </div>
+                  </header>
+                  <div class="chart-wrap">
+                    <svg
+                      viewBox="0 0 720 250"
+                      role="img"
+                      aria-label="Illustrative buy and sell quote frontier"
+                    >
+                      <defs>
+                        <linearGradient
+                          id="buyFade"
+                          x1="0"
+                          x2="0"
+                          y1="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0"
+                            stop-color="#6dfd5f"
+                            stop-opacity=".16"
+                          />
+                          <stop
+                            offset="1"
+                            stop-color="#6dfd5f"
+                            stop-opacity="0"
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="goldFade"
+                          x1="0"
+                          x2="0"
+                          y1="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0"
+                            stop-color="#0d0d0d"
+                            stop-opacity=".07"
+                          />
+                          <stop
+                            offset="1"
+                            stop-color="#0d0d0d"
+                            stop-opacity="0"
+                          />
+                        </linearGradient>
+                      </defs>
+                      <g>
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="28"
+                          y2="28"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="77"
+                          y2="77"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="126"
+                          y2="126"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="175"
+                          y2="175"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="224"
+                          y2="224"
+                        />
+                      </g>
+                      <g class="chart-axis">
+                        <text x="8" y="31">51.10</text>
+                        <text x="8" y="80">50.90</text>
+                        <text x="8" y="129">50.70</text>
+                        <text x="8" y="178">50.50</text>
+                        <text x="8" y="227">50.30</text>
+                        <text x="54" y="246">10k</text>
+                        <text x="205" y="246">25k</text>
+                        <text x="367" y="246">50k EGP</text>
+                        <text x="535" y="246">75k</text>
+                        <text x="680" y="246">100k</text>
+                      </g>
+                      <path
+                        class="chart-area-buy"
+                        d="M55 117 C150 110 190 102 245 95 S350 70 385 69 S490 55 540 47 S630 37 700 29 L700 224 L55 224Z"
+                      />
+                      <path
+                        class="chart-buy"
+                        d="M55 117 C150 110 190 102 245 95 S350 70 385 69 S490 55 540 47 S630 37 700 29"
+                      />
+                      <path
+                        class="chart-sell"
+                        d="M55 187 C145 184 195 179 245 174 S340 168 385 164 S490 153 540 149 S635 143 700 136"
+                      />
+                      <circle
+                        class="chart-point"
+                        cx="385"
+                        cy="69"
+                        r="4"
+                        stroke="#6dfd5f"
+                      />
+                      <circle
+                        class="chart-point"
+                        cx="385"
+                        cy="164"
+                        r="4"
+                        stroke="#ba7812"
+                      />
+                      <g class="annotation">
+                        <path d="M388 65 430 41" stroke="#a6a6a6" />
+                        <rect
+                          x="428"
+                          y="22"
+                          width="136"
+                          height="32"
+                          rx="7"
+                          fill="#ffffff"
+                          stroke="#e8e8ec"
+                        />
+                        <text
+                          x="437"
+                          y="35"
+                          class="chart-axis"
+                          style="font-weight: 800; fill: #0d0d0d"
+                        >
+                          Saved note · 50k EGP
+                        </text>
+                        <text x="437" y="47" class="chart-axis">
+                          Payment route held constant
+                        </text>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="chart-legend">
+                    <span
+                      ><span class="legend-line"></span>Buy asset — advertisers
+                      selling</span
+                    ><span
+                      ><span class="legend-line gold"></span>Sell asset —
+                      advertisers buying</span
+                    ><span>Dashed line is a non-color side cue</span>
+                  </div>
+                </article>
+
+                <aside class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Decision context</h2>
+                      <p>
+                        The assumptions applied to every value on this screen.
+                      </p>
+                    </div>
+                    <span class="chip success">Complete</span>
+                  </header>
+                  <div class="panel-body">
+                    <dl class="context-list">
+                      <div class="context-row">
+                        <dt>Amount basis</dt>
+                        <dd>50,000 EGP</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Payment logic</dt>
+                        <dd>ANY of 2 methods</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Buy eligibility</dt>
+                        <dd>41 / 100</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Sell eligibility</dt>
+                        <dd>37 / 100</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Completion filter</dt>
+                        <dd>≥ 95%</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Costs and buffer</dt>
+                        <dd>Not configured</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Calculation version</dt>
+                        <dd>calc-1.0.1</dd>
+                      </div>
+                    </dl>
+                    <div class="callout">
+                      <strong>No recommendation is produced.</strong> P2P Desk
+                      explains validated observations and calculations; it never
+                      prepares, hands off, or executes an order.
+                    </div>
+                  </div>
+                </aside>
+              </div>
+
+              <article class="panel">
+                <header class="panel-header">
+                  <div class="panel-title">
+                    <h2>Top compatible offers</h2>
+                    <p>
+                      Equal visibility for both user intents under the exact
+                      shared context.
+                    </p>
+                  </div>
+                  <div class="panel-actions">
+                    <span class="chip neutral">Illustrative rows</span
+                    ><button class="button quiet" data-page-jump="offers">
+                      Open all offers
+                    </button>
+                  </div>
+                </header>
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>User intent</th>
+                        <th>Price</th>
+                        <th>Merchant</th>
+                        <th>Fiat limits</th>
+                        <th>Available</th>
+                        <th>Payment methods</th>
+                        <th>Completion</th>
+                        <th>Validation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="chip buy">Buy asset</span></td>
+                        <td class="price">50.84 EGP</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M1</span
+                            ><span
+                              >Preview merchant 01<small
+                                >1,842 orders</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>10,000–75,000 EGP</td>
+                        <td>3,820 USDT</td>
+                        <td>Bank transfer · Vodafone Cash</td>
+                        <td>98.7%</td>
+                        <td><span class="chip success">Eligible</span></td>
+                      </tr>
+                      <tr>
+                        <td><span class="chip sell">Sell asset</span></td>
+                        <td class="price">50.47 EGP</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M2</span
+                            ><span
+                              >Preview merchant 02<small
+                                >2,306 orders</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>5,000–90,000 EGP</td>
+                        <td>5,120 USDT</td>
+                        <td>Bank transfer</td>
+                        <td>99.1%</td>
+                        <td><span class="chip success">Eligible</span></td>
+                      </tr>
+                      <tr>
+                        <td><span class="chip buy">Buy asset</span></td>
+                        <td class="price">50.86 EGP</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M3</span
+                            ><span
+                              >Preview merchant 03<small
+                                >760 orders</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>20,000–60,000 EGP</td>
+                        <td>1,410 USDT</td>
+                        <td>Vodafone Cash</td>
+                        <td>97.9%</td>
+                        <td><span class="chip success">Eligible</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
+
+            <section class="view" data-view="offers">
+              <div class="empty-review">
+                <div class="empty-review-inner">
+                  <div class="state-illustration">
+                    <svg class="icon"><use href="#i-offers" /></svg>
+                  </div>
+                  <h2 data-state-title>Fetching validated offers</h2>
+                  <p data-state-copy>
+                    Pages alternate between Buy asset and Sell asset while row,
+                    pair, side, amount, and payment checks run.
+                  </p>
+                  <button class="button primary state-action">
+                    Cancel acquisition
+                  </button>
+                </div>
+              </div>
+              <div class="grid equal-two">
+                <article class="metric-card side-primary">
+                  <div class="metric-head">
+                    <span>Buy asset eligibility</span
+                    ><span class="chip buy">Advertisers sell</span>
+                  </div>
+                  <div class="metric-value">
+                    41 <small>of 100 validated</small>
+                  </div>
+                  <div class="metric-caption">
+                    37 amount-eligible; 4 excluded by shared payment context.
+                  </div>
+                  <div class="metric-foot">
+                    <span>Best 50.84 EGP</span><span>Coverage 41.5%</span>
+                  </div>
+                </article>
+                <article class="metric-card side-primary">
+                  <div class="metric-head">
+                    <span>Sell asset eligibility</span
+                    ><span class="chip sell">Advertisers buy</span>
+                  </div>
+                  <div class="metric-value">
+                    37 <small>of 100 validated</small>
+                  </div>
+                  <div class="metric-caption">
+                    35 amount-eligible; 2 excluded by shared payment context.
+                  </div>
+                  <div class="metric-foot">
+                    <span>Best 50.47 EGP</span><span>Coverage 33.6%</span>
+                  </div>
+                </article>
+              </div>
+              <article class="panel">
+                <header class="panel-header">
+                  <div class="panel-title">
+                    <h2>Validated advertisement table</h2>
+                    <p>
+                      100-row pages with bounded virtualization; source-side
+                      meaning stays explicit.
+                    </p>
+                  </div>
+                  <div class="panel-actions">
+                    <label
+                      class="field-control"
+                      style="min-height: 34px; width: 210px"
+                      ><svg class="icon"><use href="#i-search" /></svg
+                      ><input
+                        aria-label="Search illustrative offers"
+                        placeholder="Search merchant or method" /></label
+                    ><button class="button preview-action">
+                      <svg class="icon"><use href="#i-download" /></svg
+                      >Full-table CSV
+                    </button>
+                  </div>
+                </header>
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Rank</th>
+                        <th>Intent / source side</th>
+                        <th>Price</th>
+                        <th>Merchant</th>
+                        <th>Available</th>
+                        <th>Min–max order</th>
+                        <th>Payment methods</th>
+                        <th>30d completion</th>
+                        <th>Orders</th>
+                        <th>Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>01</td>
+                        <td>
+                          <span class="chip buy">Buy · advertiser sells</span>
+                        </td>
+                        <td class="price">50.84</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M1</span
+                            ><span
+                              >Preview merchant 01<small
+                                >Pseudonymous analysis ID</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>3,820 USDT</td>
+                        <td>10k–75k EGP</td>
+                        <td>
+                          <span class="mini-tag">Bank</span>
+                          <span class="mini-tag">Wallet</span>
+                        </td>
+                        <td>98.7%</td>
+                        <td>1,842</td>
+                        <td>
+                          <button class="button quiet preview-action">
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>02</td>
+                        <td>
+                          <span class="chip buy">Buy · advertiser sells</span>
+                        </td>
+                        <td class="price">50.86</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M3</span
+                            ><span
+                              >Preview merchant 03<small
+                                >Pseudonymous analysis ID</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>1,410 USDT</td>
+                        <td>20k–60k EGP</td>
+                        <td><span class="mini-tag">Wallet</span></td>
+                        <td>97.9%</td>
+                        <td>760</td>
+                        <td>
+                          <button class="button quiet preview-action">
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>03</td>
+                        <td>
+                          <span class="chip buy">Buy · advertiser sells</span>
+                        </td>
+                        <td class="price">50.88</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M4</span
+                            ><span
+                              >Preview merchant 04<small
+                                >Pseudonymous analysis ID</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>6,800 USDT</td>
+                        <td>5k–120k EGP</td>
+                        <td><span class="mini-tag">Bank</span></td>
+                        <td>99.3%</td>
+                        <td>3,115</td>
+                        <td>
+                          <button class="button quiet preview-action">
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>01</td>
+                        <td>
+                          <span class="chip sell">Sell · advertiser buys</span>
+                        </td>
+                        <td class="price">50.47</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M2</span
+                            ><span
+                              >Preview merchant 02<small
+                                >Pseudonymous analysis ID</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>5,120 USDT</td>
+                        <td>5k–90k EGP</td>
+                        <td><span class="mini-tag">Bank</span></td>
+                        <td>99.1%</td>
+                        <td>2,306</td>
+                        <td>
+                          <button class="button quiet preview-action">
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>02</td>
+                        <td>
+                          <span class="chip sell">Sell · advertiser buys</span>
+                        </td>
+                        <td class="price">50.45</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M5</span
+                            ><span
+                              >Preview merchant 05<small
+                                >Pseudonymous analysis ID</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>2,270 USDT</td>
+                        <td>25k–80k EGP</td>
+                        <td><span class="mini-tag">Wallet</span></td>
+                        <td>98.4%</td>
+                        <td>1,290</td>
+                        <td>
+                          <button class="button quiet preview-action">
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>03</td>
+                        <td>
+                          <span class="chip sell">Sell · advertiser buys</span>
+                        </td>
+                        <td class="price">50.43</td>
+                        <td>
+                          <span class="merchant"
+                            ><span class="merchant-mark">M6</span
+                            ><span
+                              >Preview merchant 06<small
+                                >Pseudonymous analysis ID</small
+                              ></span
+                            ></span
+                          >
+                        </td>
+                        <td>8,430 USDT</td>
+                        <td>10k–150k EGP</td>
+                        <td>
+                          <span class="mini-tag">Bank</span>
+                          <span class="mini-tag">Wallet</span>
+                        </td>
+                        <td>96.8%</td>
+                        <td>645</td>
+                        <td>
+                          <button class="button quiet preview-action">
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <footer class="table-footer">
+                  <span
+                    >Rows 1–6 of 200 illustrative rows · viewport renders a
+                    bounded window</span
+                  ><span>Page 1 of 2 · 100 rows/page</span>
+                </footer>
+              </article>
+            </section>
+
+            <section class="view" data-view="analysis">
+              <div class="empty-review">
+                <div class="empty-review-inner">
+                  <div class="state-illustration">
+                    <svg class="icon"><use href="#i-analysis" /></svg>
+                  </div>
+                  <h2 data-state-title>Preparing exact chart inputs</h2>
+                  <p data-state-copy>
+                    Charts appear only after both sides and every calculation
+                    input pass validation. A full data table remains available.
+                  </p>
+                  <button class="button primary state-action">
+                    Cancel calculation
+                  </button>
+                </div>
+              </div>
+              <div class="tabs" role="tablist" aria-label="Analysis view">
+                <button class="tab active" role="tab" aria-selected="true">
+                  Amount impact</button
+                ><button class="tab" role="tab" aria-selected="false">
+                  Price distribution</button
+                ><button class="tab" role="tab" aria-selected="false">
+                  Eligible liquidity</button
+                ><button class="tab" role="tab" aria-selected="false">
+                  Payment routes</button
+                ><button class="tab" role="tab" aria-selected="false">
+                  Merchant concentration</button
+                ><button class="tab" role="tab" aria-selected="false">
+                  Compatible spread
+                </button>
+              </div>
+              <div class="grid equal-two">
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Estimated amount impact</h2>
+                      <p>
+                        Weighted multi-ad estimate relative to the best eligible
+                        single ad.
+                      </p>
+                    </div>
+                    <span class="chip warning">Heuristic route</span>
+                  </header>
+                  <div class="chart-wrap compact">
+                    <svg
+                      viewBox="0 0 560 205"
+                      role="img"
+                      aria-label="Illustrative amount impact lines"
+                    >
+                      <g>
+                        <line
+                          class="chart-gridline"
+                          x1="50"
+                          x2="540"
+                          y1="25"
+                          y2="25"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="50"
+                          x2="540"
+                          y1="74"
+                          y2="74"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="50"
+                          x2="540"
+                          y1="123"
+                          y2="123"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="50"
+                          x2="540"
+                          y1="172"
+                          y2="172"
+                        />
+                      </g>
+                      <g class="chart-axis">
+                        <text x="8" y="28">1.2%</text>
+                        <text x="8" y="77">0.8%</text>
+                        <text x="8" y="126">0.4%</text>
+                        <text x="8" y="175">0.0%</text>
+                        <text x="48" y="197">10k</text>
+                        <text x="270" y="197">50k</text>
+                        <text x="510" y="197">100k</text>
+                      </g>
+                      <path
+                        class="chart-buy"
+                        d="M50 168 C150 160 180 145 260 132 S390 90 540 47"
+                      />
+                      <path
+                        class="chart-sell"
+                        d="M50 169 C145 166 190 154 260 145 S400 118 540 84"
+                      />
+                      <circle
+                        class="chart-point"
+                        cx="290"
+                        cy="124"
+                        r="4"
+                        stroke="#6dfd5f"
+                      />
+                      <circle
+                        class="chart-point"
+                        cx="290"
+                        cy="140"
+                        r="4"
+                        stroke="#ba7812"
+                      />
+                    </svg>
+                  </div>
+                  <div class="chart-legend">
+                    <span><span class="legend-line"></span>Buy asset route</span
+                    ><span
+                      ><span class="legend-line gold"></span>Sell asset
+                      route</span
+                    >
+                  </div>
+                </article>
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Eligibility by payment route</h2>
+                      <p>
+                        Unique ads only—multi-method ads are not double-counted
+                        as market share.
+                      </p>
+                    </div>
+                    <button class="button quiet preview-action">
+                      Data table
+                    </button>
+                  </header>
+                  <div class="panel-body">
+                    <div class="bar-chart">
+                      <div class="bar-row">
+                        <span>Bank transfer · Buy</span>
+                        <div class="bar-track">
+                          <div class="bar-fill" style="width: 82%"></div>
+                        </div>
+                        <strong>34</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Bank transfer · Sell</span>
+                        <div class="bar-track">
+                          <div class="bar-fill gold" style="width: 74%"></div>
+                        </div>
+                        <strong>31</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Vodafone Cash · Buy</span>
+                        <div class="bar-track">
+                          <div class="bar-fill" style="width: 49%"></div>
+                        </div>
+                        <strong>20</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Vodafone Cash · Sell</span>
+                        <div class="bar-track">
+                          <div class="bar-fill gold" style="width: 43%"></div>
+                        </div>
+                        <strong>18</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Compatible · both</span>
+                        <div class="bar-track">
+                          <div class="bar-fill" style="width: 63%"></div>
+                        </div>
+                        <strong>26</strong>
+                      </div>
+                    </div>
+                    <div class="callout">
+                      Counts are descriptive within the validated sample and do
+                      not represent provider-wide payment-market share.
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="grid two-column">
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Robust price distribution</h2>
+                      <p>
+                        Median, R7 quantiles, weighted ECDF quantiles, and MAD
+                        outlier flags.
+                      </p>
+                    </div>
+                    <div class="panel-actions">
+                      <span class="chip buy">Buy median 50.91</span
+                      ><span class="chip sell">Sell median 50.39</span>
+                    </div>
+                  </header>
+                  <div class="chart-wrap compact">
+                    <svg
+                      viewBox="0 0 720 200"
+                      role="img"
+                      aria-label="Illustrative two-sided price distribution"
+                    >
+                      <g>
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="40"
+                          y2="40"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="90"
+                          y2="90"
+                        />
+                        <line
+                          class="chart-gridline"
+                          x1="55"
+                          x2="700"
+                          y1="140"
+                          y2="140"
+                        />
+                      </g>
+                      <g class="chart-axis">
+                        <text x="11" y="45">Buy</text>
+                        <text x="11" y="145">Sell</text>
+                        <text x="55" y="184">50.1</text>
+                        <text x="220" y="184">50.4</text>
+                        <text x="385" y="184">50.7</text>
+                        <text x="550" y="184">51.0</text>
+                        <text x="676" y="184">51.2</text>
+                      </g>
+                      <g fill="#6dfd5f" opacity=".75">
+                        <rect x="360" y="58" width="20" height="32" rx="4" />
+                        <rect x="385" y="49" width="20" height="41" rx="4" />
+                        <rect x="410" y="34" width="20" height="56" rx="4" />
+                        <rect x="435" y="23" width="20" height="67" rx="4" />
+                        <rect x="460" y="44" width="20" height="46" rx="4" />
+                        <rect x="485" y="65" width="20" height="25" rx="4" />
+                      </g>
+                      <g fill="#0d0d0d" opacity=".78">
+                        <rect x="180" y="140" width="20" height="18" rx="4" />
+                        <rect x="205" y="123" width="20" height="35" rx="4" />
+                        <rect x="230" y="105" width="20" height="53" rx="4" />
+                        <rect x="255" y="99" width="20" height="59" rx="4" />
+                        <rect x="280" y="119" width="20" height="39" rx="4" />
+                        <rect x="305" y="139" width="20" height="19" rx="4" />
+                      </g>
+                      <line
+                        x1="447"
+                        x2="447"
+                        y1="17"
+                        y2="92"
+                        stroke="#0d0d0d"
+                        stroke-width="2"
+                      />
+                      <line
+                        x1="263"
+                        x2="263"
+                        y1="96"
+                        y2="163"
+                        stroke="#888888"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </div>
+                </article>
+                <aside class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Calculation details</h2>
+                      <p>
+                        Plain-language meaning stays adjacent to each analytical
+                        result.
+                      </p>
+                    </div>
+                    <button class="button quiet" data-open-dialog>
+                      All formulas
+                    </button>
+                  </header>
+                  <div class="panel-body">
+                    <div class="formula">
+                      <div class="formula-item">
+                        <strong>Best eligible single-ad quote</strong
+                        ><code
+                          >best price after amount, limits, availability,
+                          payment, and merchant checks</code
+                        >
+                      </div>
+                      <div class="formula-item">
+                        <strong>Compatible gross spread</strong
+                        ><code
+                          >(sell-compatible − buy-compatible) ÷ buy-compatible ×
+                          100</code
+                        >
+                      </div>
+                      <div class="formula-item">
+                        <strong>Modified-z outlier</strong
+                        ><code
+                          >flag only when n ≥ 5; median absolute deviation,
+                          exact decimals</code
+                        >
+                      </div>
+                      <div class="formula-item">
+                        <strong>Weighted route estimate</strong
+                        ><code
+                          >certified safe cases; otherwise explicitly labeled
+                          heuristic allocation</code
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            </section>
+
+            <section class="view" data-view="history">
+              <div class="empty-review">
+                <div class="empty-review-inner">
+                  <div class="state-illustration">
+                    <svg class="icon"><use href="#i-history" /></svg>
+                  </div>
+                  <h2 data-state-title>Reading local validated snapshots</h2>
+                  <p data-state-copy>
+                    History remains visibly historical and can never replace a
+                    failed live acquisition.
+                  </p>
+                  <button class="button primary state-action">
+                    Cancel read
+                  </button>
+                </div>
+              </div>
+              <div class="notice">
+                <svg class="icon"><use href="#i-database" /></svg>
+                <div>
+                  <strong
+                    >Historical observations remain separate from live
+                    status</strong
+                  >Local SQLite snapshots are analytical records only. They are
+                  never substituted or relabeled when the live source is
+                  unavailable.
+                </div>
+                <button class="button preview-action">Export package</button>
+              </div>
+              <div class="grid metric-grid">
+                <article class="metric-card">
+                  <div class="metric-head">
+                    <span>Snapshots in range</span
+                    ><span class="chip neutral">7 days</span>
+                  </div>
+                  <div class="metric-value">1,184</div>
+                  <div class="metric-caption">
+                    Atomic complete snapshots matching the exact context.
+                  </div>
+                  <div class="metric-foot">
+                    <span>15 min median interval</span
+                    ><span>18 gaps labeled</span>
+                  </div>
+                </article>
+                <article class="metric-card">
+                  <div class="metric-head">
+                    <span>Buy quote change</span
+                    ><span class="chip buy">Buy asset</span>
+                  </div>
+                  <div class="metric-value">+0.42 <small>% / 24h</small></div>
+                  <div class="metric-caption">
+                    Exact change in the best eligible buy quote.
+                  </div>
+                  <div class="metric-foot">
+                    <span>50.63 → 50.84</span><span>Complete observations</span>
+                  </div>
+                </article>
+                <article class="metric-card">
+                  <div class="metric-head">
+                    <span>Sell quote change</span
+                    ><span class="chip sell">Sell asset</span>
+                  </div>
+                  <div class="metric-value">+0.36 <small>% / 24h</small></div>
+                  <div class="metric-caption">
+                    Exact change under the same amount and filters.
+                  </div>
+                  <div class="metric-foot">
+                    <span>50.29 → 50.47</span><span>Complete observations</span>
+                  </div>
+                </article>
+                <article class="metric-card">
+                  <div class="metric-head">
+                    <span>Observation completeness</span
+                    ><span class="chip success">98.5%</span>
+                  </div>
+                  <div class="metric-value">18 <small>labeled gaps</small></div>
+                  <div class="metric-caption">
+                    Unavailable/error windows are shown, not interpolated away.
+                  </div>
+                  <div class="metric-foot">
+                    <span>No fallback</span><span>Clock checks passed</span>
+                  </div>
+                </article>
+              </div>
+              <article class="panel">
+                <header class="panel-header">
+                  <div class="panel-title">
+                    <h2>Eligible quote history</h2>
+                    <p>
+                      Pair, amount, payment context, quality, and missing
+                      windows travel with every point.
+                    </p>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="button quiet preview-action">
+                      Saved view: 7-day context</button
+                    ><button class="button preview-action">
+                      <svg class="icon"><use href="#i-download" /></svg>PDF +
+                      full data
+                    </button>
+                  </div>
+                </header>
+                <div class="chart-wrap">
+                  <svg
+                    viewBox="0 0 900 250"
+                    role="img"
+                    aria-label="Illustrative historical buy and sell quote lines"
+                  >
+                    <g>
+                      <line
+                        class="chart-gridline"
+                        x1="55"
+                        x2="875"
+                        y1="25"
+                        y2="25"
+                      />
+                      <line
+                        class="chart-gridline"
+                        x1="55"
+                        x2="875"
+                        y1="75"
+                        y2="75"
+                      />
+                      <line
+                        class="chart-gridline"
+                        x1="55"
+                        x2="875"
+                        y1="125"
+                        y2="125"
+                      />
+                      <line
+                        class="chart-gridline"
+                        x1="55"
+                        x2="875"
+                        y1="175"
+                        y2="175"
+                      />
+                      <line
+                        class="chart-gridline"
+                        x1="55"
+                        x2="875"
+                        y1="225"
+                        y2="225"
+                      />
+                    </g>
+                    <g class="chart-axis">
+                      <text x="7" y="29">51.00</text>
+                      <text x="7" y="79">50.80</text>
+                      <text x="7" y="129">50.60</text>
+                      <text x="7" y="179">50.40</text>
+                      <text x="7" y="229">50.20</text>
+                      <text x="55" y="247">9 Aug</text>
+                      <text x="190" y="247">10 Aug</text>
+                      <text x="325" y="247">11 Aug</text>
+                      <text x="460" y="247">12 Aug</text>
+                      <text x="595" y="247">13 Aug</text>
+                      <text x="730" y="247">14 Aug</text>
+                      <text x="840" y="247">15 Aug</text>
+                    </g>
+                    <path
+                      class="chart-buy"
+                      d="M55 140 C120 137 160 146 205 130 S300 120 340 126 S420 108 470 111 S555 92 610 98 S705 74 745 80 S830 66 875 64"
+                    />
+                    <path
+                      class="chart-sell"
+                      d="M55 218 C125 211 160 218 205 207 S295 199 340 205 S430 188 470 192 S560 177 610 181 S700 159 745 166 S825 151 875 148"
+                    />
+                    <rect
+                      x="493"
+                      y="25"
+                      width="26"
+                      height="200"
+                      fill="#f0f1f3"
+                      opacity=".75"
+                    />
+                    <text
+                      x="486"
+                      y="18"
+                      class="chart-axis"
+                      style="fill: #888888"
+                    >
+                      Source unavailable
+                    </text>
+                  </svg>
+                </div>
+                <div class="chart-legend">
+                  <span><span class="legend-line"></span>Buy asset</span
+                  ><span><span class="legend-line gold"></span>Sell asset</span
+                  ><span style="color: #888888"
+                    >Shaded gap is not interpolated</span
+                  >
+                </div>
+              </article>
+            </section>
+
+            <section class="view" data-view="health">
+              <div class="empty-review">
+                <div class="empty-review-inner">
+                  <div class="state-illustration">
+                    <svg class="icon"><use href="#i-health" /></svg>
+                  </div>
+                  <h2 data-state-title>Running source and contract checks</h2>
+                  <p data-state-copy>
+                    Data Health distinguishes network, throttle, WAF, schema,
+                    side, storage, and clock states without exposing raw
+                    provider identities.
+                  </p>
+                  <button class="button primary state-action">
+                    Cancel diagnostic
+                  </button>
+                </div>
+              </div>
+              <article class="panel">
+                <div class="panel-body health-hero">
+                  <div class="health-score">A</div>
+                  <div class="health-copy">
+                    <h2>All required checks passed</h2>
+                    <p>
+                      Illustrative complete state · two sides validated · no
+                      open circuit · local write complete.
+                    </p>
+                  </div>
+                  <div>
+                    <span class="chip success">Complete-state pattern</span>
+                  </div>
+                </div>
+              </article>
+              <div class="grid three-column">
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Source contract</h2>
+                      <p>Experimental Binance P2P Web</p>
+                    </div>
+                    <span class="chip success">Passed</span>
+                  </header>
+                  <div class="panel-body check-list">
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Envelope and schema</strong
+                        ><small>Required fields and ranges</small></span
+                      ><small>2 sides</small>
+                    </div>
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Side invariant</strong
+                        ><small>Buy→advertiser SELL; Sell→BUY</small></span
+                      ><small>200 rows</small>
+                    </div>
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Pair invariant</strong
+                        ><small>USDT / EGP exact match</small></span
+                      ><small>Passed</small>
+                    </div>
+                  </div>
+                </article>
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Acquisition</h2>
+                      <p>Serialized, paced, cancellable</p>
+                    </div>
+                    <span class="chip success">Complete</span>
+                  </header>
+                  <div class="panel-body check-list">
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Requests</strong
+                        ><small>Alternating side schedule</small></span
+                      ><small>10</small>
+                    </div>
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Duplicates</strong
+                        ><small>Suppressed before publication</small></span
+                      ><small>4</small>
+                    </div>
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Rejected rows</strong
+                        ><small>Safe category counts only</small></span
+                      ><small>0</small>
+                    </div>
+                  </div>
+                </article>
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Runtime</h2>
+                      <p>Network, storage, and clock</p>
+                    </div>
+                    <span class="chip success">Healthy</span>
+                  </header>
+                  <div class="panel-body check-list">
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Global circuit</strong
+                        ><small>No throttle or contract break</small></span
+                      ><small>Closed</small>
+                    </div>
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Snapshot commit</strong
+                        ><small>Atomic SQLite transaction</small></span
+                      ><small>42 ms</small>
+                    </div>
+                    <div class="check-item">
+                      <span class="check-icon">✓</span
+                      ><span
+                        ><strong>Device clock</strong
+                        ><small>No rollback or jump detected</small></span
+                      ><small>Passed</small>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="grid two-column">
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Acquisition latency</h2>
+                      <p>
+                        Illustrative stage timing; no merchant or full ad
+                        identifiers.
+                      </p>
+                    </div>
+                    <span class="chip neutral">Total 5.8s</span>
+                  </header>
+                  <div class="panel-body">
+                    <div class="bar-chart">
+                      <div class="bar-row">
+                        <span>Queue + pacing</span>
+                        <div class="bar-track">
+                          <div class="bar-fill" style="width: 70%"></div>
+                        </div>
+                        <strong>3.6s</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Provider receive</span>
+                        <div class="bar-track">
+                          <div class="bar-fill" style="width: 37%"></div>
+                        </div>
+                        <strong>1.7s</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Validation</span>
+                        <div class="bar-track">
+                          <div class="bar-fill gold" style="width: 13%"></div>
+                        </div>
+                        <strong>0.3s</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>Calculation</span>
+                        <div class="bar-track">
+                          <div class="bar-fill gold" style="width: 8%"></div>
+                        </div>
+                        <strong>0.1s</strong>
+                      </div>
+                      <div class="bar-row">
+                        <span>SQLite commit</span>
+                        <div class="bar-track">
+                          <div class="bar-fill" style="width: 5%"></div>
+                        </div>
+                        <strong>42ms</strong>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+                <article class="panel">
+                  <header class="panel-header">
+                    <div class="panel-title">
+                      <h2>Agent cross-check</h2>
+                      <p>
+                        Separate metadata and health only—never advertisement
+                        fallback.
+                      </p>
+                    </div>
+                    <span class="chip info">Optional</span>
+                  </header>
+                  <div class="panel-body">
+                    <dl class="context-list">
+                      <div class="context-row">
+                        <dt>Trade methods contract</dt>
+                        <dd>32 validated</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Nullable short names</dt>
+                        <dd>Accepted safely</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>P2P quote cross-check</dt>
+                        <dd>Separately timed</dd>
+                      </div>
+                      <div class="context-row">
+                        <dt>Primary dataset effect</dt>
+                        <dd>None</dd>
+                      </div>
+                    </dl>
+                    <div class="callout">
+                      If Agent metadata fails, the primary result remains
+                      explicit and the secondary warning appears here. Agent
+                      data never repairs or substitutes an ad.
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="view" data-view="settings">
+              <div class="empty-review">
+                <div class="empty-review-inner">
+                  <div class="state-illustration">
+                    <svg class="icon"><use href="#i-settings" /></svg>
+                  </div>
+                  <h2 data-state-title>Loading local preferences</h2>
+                  <p data-state-copy>
+                    Settings are local, schema-validated, and never include
+                    provider credentials or account access.
+                  </p>
+                  <button class="button primary state-action">
+                    Retry local read
+                  </button>
+                </div>
+              </div>
+              <div class="grid two-column">
+                <div>
+                  <article class="panel">
+                    <header class="panel-header">
+                      <div class="panel-title">
+                        <h2>Refresh and result controls</h2>
+                        <p>Validated integer limits persisted locally.</p>
+                      </div>
+                      <span class="chip success">Saved locally</span>
+                    </header>
+                    <div class="panel-body settings-grid">
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Auto-refresh</strong>
+                          <p>
+                            Refresh a complete two-sided acquisition on the
+                            selected schedule.
+                          </p>
+                        </div>
+                        <button
+                          class="switch setting-control"
+                          id="auto-switch"
+                          role="switch"
+                          aria-checked="true"
+                          aria-label="Auto-refresh"
+                        ></button>
+                      </div>
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Refresh interval</strong>
+                          <p>
+                            Whole seconds from 10 through 3,600. Default is 20.
+                          </p>
+                        </div>
+                        <label class="number-control setting-control"
+                          ><input
+                            type="number"
+                            min="10"
+                            max="3600"
+                            value="20"
+                            aria-label="Refresh interval"
+                          /><span>seconds</span></label
+                        >
+                      </div>
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Results per side</strong>
+                          <p>
+                            Whole number from 20 through 1,000; tables page in
+                            100-row views.
+                          </p>
+                        </div>
+                        <label class="number-control setting-control"
+                          ><input
+                            type="number"
+                            min="20"
+                            max="1000"
+                            value="100"
+                            aria-label="Results per side"
+                          /><span>rows</span></label
+                        >
+                      </div>
+                    </div>
+                  </article>
+                  <article class="panel">
+                    <header class="panel-header">
+                      <div class="panel-title">
+                        <h2>Configured costs</h2>
+                        <p>
+                          Effective-dated costs remain explicit; unknown costs
+                          suppress net claims.
+                        </p>
+                      </div>
+                      <button class="button preview-action">
+                        Manage costs
+                      </button>
+                    </header>
+                    <div class="panel-body settings-grid">
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Payment transfer cost</strong>
+                          <p>No silent zero assumption.</p>
+                        </div>
+                        <span class="chip warning setting-control"
+                          >Not configured</span
+                        >
+                      </div>
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Safety buffer</strong>
+                          <p>Applied only to configured net-spread analysis.</p>
+                        </div>
+                        <label class="number-control setting-control"
+                          ><input
+                            value="0.00"
+                            aria-label="Safety buffer percentage"
+                          /><span>%</span></label
+                        >
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                <div>
+                  <article class="panel">
+                    <header class="panel-header">
+                      <div class="panel-title">
+                        <h2>Experimental source</h2>
+                        <p>Required disclosure and local acknowledgement.</p>
+                      </div>
+                      <span class="chip warning">Unsupported contract</span>
+                    </header>
+                    <div class="panel-body">
+                      <div class="notice" style="margin: 0">
+                        <svg class="icon"><use href="#i-warning" /></svg>
+                        <div>
+                          <strong
+                            >Binance P2P Web can change without notice</strong
+                          >The website contract may rate-limit, block, change
+                          schema, or become unavailable. Cached, historical,
+                          Agent, secondary, or fabricated values are never
+                          presented as current live data.
+                        </div>
+                      </div>
+                      <dl class="context-list" style="margin-top: 14px">
+                        <div class="context-row">
+                          <dt>Adapter version</dt>
+                          <dd>binance-p2p-web-1</dd>
+                        </div>
+                        <div class="context-row">
+                          <dt>Disclosure version</dt>
+                          <dd>experimental-source-1</dd>
+                        </div>
+                        <div class="context-row">
+                          <dt>Acknowledgement</dt>
+                          <dd>Recorded locally</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </article>
+                  <article class="panel">
+                    <header class="panel-header">
+                      <div class="panel-title">
+                        <h2>Local data and backup</h2>
+                        <p>
+                          Atomic SQLite history, settings, costs, views, and
+                          annotations.
+                        </p>
+                      </div>
+                      <svg class="icon"><use href="#i-database" /></svg>
+                    </header>
+                    <div class="panel-body settings-grid">
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Automatic backup</strong>
+                          <p>Bounded, verified backup rotation.</p>
+                        </div>
+                        <button
+                          class="switch setting-control"
+                          role="switch"
+                          aria-checked="true"
+                          aria-label="Automatic backup"
+                        ></button>
+                      </div>
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Create backup now</strong>
+                          <p>Writes to a user-selected local destination.</p>
+                        </div>
+                        <button class="button setting-control preview-action">
+                          Create backup
+                        </button>
+                      </div>
+                      <div class="setting-row">
+                        <div class="setting-copy">
+                          <strong>Diagnostics package</strong>
+                          <p>
+                            Safe configuration and aggregate health; no raw
+                            response or full provider ID.
+                          </p>
+                        </div>
+                        <button class="button setting-control preview-action">
+                          Export
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <div class="review-ribbon">Design preview · not live</div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <dialog id="explain-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-head">
+        <div><h2 id="dialog-title">Calculation and source explanation</h2></div>
+        <button
+          class="icon-button"
+          id="close-dialog"
+          aria-label="Close explanation"
+        >
+          ×
+        </button>
+      </div>
+      <div class="dialog-body">
+        <span class="chip warning">Illustrative preview</span>
+        <p>
+          This file demonstrates the intended finished visual hierarchy and
+          interactions. It contains no live, cached, historical, or captured
+          provider data. Values and merchant labels are invented solely to test
+          the GUI.
+        </p>
+        <div class="formula">
+          <div class="formula-item">
+            <strong>Side meaning is never inferred from a table label</strong
+            ><code
+              >Buy asset → request BUY → required advertiser SELL<br />Sell
+              asset → request SELL → required advertiser BUY</code
+            >
+          </div>
+          <div class="formula-item">
+            <strong>Exact arithmetic</strong
+            ><code
+              >Provider number lexeme → ExactDecimal → half-even presentation
+              rounding</code
+            >
+          </div>
+          <div class="formula-item">
+            <strong>No fallback</strong
+            ><code
+              >live failure → explicit localized error state; never
+              cache/history/Agent/demo substitution</code
+            >
+          </div>
+          <div class="formula-item">
+            <strong>Read-only boundary</strong
+            ><code
+              >analysis, history, exports, annotations, and diagnostics only; no
+              account, handoff, order preparation, or execution</code
+            >
+          </div>
+        </div>
+      </div>
+    </dialog>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const root = document.documentElement;
+        document
+          .querySelectorAll("svg.icon")
+          .forEach((icon) => icon.setAttribute("aria-hidden", "true"));
+        const pageTitle = document.querySelector("#page-title");
+        const reviewState = document.querySelector("#review-state");
+        const runtimeStatus = document.querySelector(".runtime-status");
+        const runtimeState = document.querySelector("[data-runtime-state]");
+        const toast = document.querySelector("#toast");
+        const dialog = document.querySelector("#explain-dialog");
+        let toastTimer;
+
+        const pages = {
+          overview: ["Overview"],
+          offers: ["Offers"],
+          analysis: ["Analysis"],
+          history: ["History"],
+          health: ["Data Health"],
+          settings: ["Settings"],
+        };
+
+        const stateText = {
+          loading: {
+            overview: [
+              "Recalculating the two-sided overview",
+              "Buy and Sell are alternating through the same amount, payment, and merchant checks.",
+            ],
+            offers: [
+              "Fetching validated offers",
+              "Pages alternate between Buy asset and Sell asset while every row passes schema, pair, side, and exact-value checks.",
+            ],
+            analysis: [
+              "Preparing exact chart inputs",
+              "Charts wait for complete validated inputs; a full data-table alternative remains available.",
+            ],
+            history: [
+              "Reading local validated snapshots",
+              "Historical observations stay visibly historical and can never become a live fallback.",
+            ],
+            health: [
+              "Running source and contract checks",
+              "The diagnostic separates network, throttle, WAF, schema, side, storage, Agent, and clock states.",
+            ],
+            settings: [
+              "Loading local preferences",
+              "Settings are schema-validated local values and never include provider credentials.",
+            ],
+            action: "Cancel operation",
+          },
+          empty: {
+            overview: [
+              "No advertisements match this exact context",
+              "Try a different amount, payment method, or merchant filter. No sample or cached values are inserted.",
+            ],
+            offers: [
+              "No eligible offers on either side",
+              "The source returned a validated two-side empty result for the selected context.",
+            ],
+            analysis: [
+              "No complete dataset to analyze",
+              "Analysis remains unavailable until both sides contain enough validated eligible observations.",
+            ],
+            history: [
+              "No saved snapshots match this context",
+              "Change the date range or context. Local history is never fabricated.",
+            ],
+            health: [
+              "No diagnostic has run yet",
+              "Run an explicit source diagnostic to validate the current experimental contract.",
+            ],
+            settings: [
+              "No local preferences are available",
+              "Safe defaults can be restored without creating market data.",
+            ],
+            action: "Review context",
+          },
+          error: {
+            overview: [
+              "The live overview is unavailable",
+              "The current acquisition failed closed. No history, cache, Agent result, or fabricated value is shown as live.",
+            ],
+            offers: [
+              "Validated offers could not be published",
+              "A transport, provider, schema, side, or pair failure stopped the complete operation.",
+            ],
+            analysis: [
+              "Analysis is unavailable",
+              "The required complete validated dataset is missing, so derived values and charts are suppressed.",
+            ],
+            history: [
+              "Local history could not be read",
+              "The storage error is isolated and does not alter current provider data.",
+            ],
+            health: [
+              "A source check requires attention",
+              "Open the categorized diagnostic details before retrying; an open circuit prevents hammering.",
+            ],
+            settings: [
+              "Local settings could not be saved",
+              "The prior validated settings remain unchanged. Retry after resolving the storage issue.",
+            ],
+            action: "View details",
+          },
+        };
+
+        function currentPage() {
+          return (
+            document.querySelector(".view.active")?.dataset.view || "overview"
+          );
+        }
+
+        function showToast(message) {
+          clearTimeout(toastTimer);
+          toast.textContent = message;
+          toast.classList.add("show");
+          toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+        }
+
+        function updateRuntimeStatus() {
+          const state = reviewState.value;
+          const stateLabel = reviewState.options[reviewState.selectedIndex].text;
+          runtimeState.textContent = `${stateLabel} · Auto-refresh 20s`;
+          runtimeStatus.dataset.state = state;
+          runtimeStatus.title = `Experimental source · ${stateLabel} · Auto-refresh 20s · Last update 17:06`;
+          runtimeStatus.setAttribute(
+            "aria-label",
+            `Experimental Binance P2P Web source. ${stateLabel} illustrative state. Auto-refresh on every 20 seconds. Last complete update 15 August 2026 at 17:06 Africa/Cairo.`,
+          );
+        }
+
+        function updateStateCopy() {
+          const state = reviewState.value;
+          updateRuntimeStatus();
+          if (state === "complete") return;
+          const page = currentPage();
+          const view = document.querySelector(`[data-view="${page}"]`);
+          const copy = stateText[state];
+          view.querySelector("[data-state-title]").textContent = copy[page][0];
+          view.querySelector("[data-state-copy]").textContent = copy[page][1];
+          view.querySelector(".state-action").textContent = copy.action;
+        }
+
+        function setPage(page) {
+          document.querySelectorAll(".nav-button").forEach((button) => {
+            if (button.dataset.page === page)
+              button.setAttribute("aria-current", "page");
+            else button.removeAttribute("aria-current");
+          });
+          document
+            .querySelectorAll(".view")
+            .forEach((view) =>
+              view.classList.toggle("active", view.dataset.view === page),
+            );
+          pageTitle.textContent = pages[page][0];
+          document
+            .querySelector(".workspace-scroll")
+            .scrollTo({ top: 0, behavior: "smooth" });
+          updateStateCopy();
+        }
+
+        document
+          .querySelectorAll(".nav-button")
+          .forEach((button) =>
+            button.addEventListener("click", () =>
+              setPage(button.dataset.page),
+            ),
+          );
+        document
+          .querySelectorAll("[data-page-jump]")
+          .forEach((button) =>
+            button.addEventListener("click", () =>
+              setPage(button.dataset.pageJump),
+            ),
+          );
+
+        reviewState.addEventListener("change", () => {
+          root.dataset.uiState = reviewState.value;
+          updateStateCopy();
+          showToast(
+            `Preview state: ${reviewState.options[reviewState.selectedIndex].text}`,
+          );
+        });
+
+        document.querySelectorAll(".intent-button").forEach((button) => {
+          button.addEventListener("click", () => {
+            document
+              .querySelectorAll(".intent-button")
+              .forEach((item) =>
+                item.setAttribute("aria-pressed", String(item === button)),
+              );
+            showToast(
+              button.dataset.intent === "both"
+                ? "Equal Buy and Sell comparison selected"
+                : `${button.textContent} emphasis selected; shared context is unchanged`,
+            );
+          });
+        });
+
+        document.querySelectorAll(".switch").forEach((button) => {
+          button.addEventListener("click", () => {
+            const next = button.getAttribute("aria-checked") !== "true";
+            button.setAttribute("aria-checked", String(next));
+            showToast(
+              next
+                ? "Setting enabled in preview"
+                : "Setting disabled in preview",
+            );
+          });
+        });
+
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            document.querySelectorAll(".tab").forEach((item) => {
+              item.classList.toggle("active", item === tab);
+              item.setAttribute("aria-selected", String(item === tab));
+            });
+            showToast(`${tab.textContent} layout selected`);
+          });
+        });
+
+        document
+          .querySelector("#toggle-annotation")
+          .addEventListener("click", () => {
+            root.dataset.annotation =
+              root.dataset.annotation === "on" ? "off" : "on";
+            showToast(
+              root.dataset.annotation === "on"
+                ? "Saved annotation shown"
+                : "Saved annotation hidden",
+            );
+          });
+
+        document
+          .querySelector("#apply-context")
+          .addEventListener("click", () => {
+            showToast(
+              "Shared context applied equally to Buy asset and Sell asset",
+            );
+          });
+
+        document.querySelectorAll(".preview-action").forEach((button) => {
+          button.addEventListener("click", () =>
+            showToast(
+              "Preview interaction only — no live data or order action",
+            ),
+          );
+        });
+
+        document.querySelectorAll(".state-action").forEach((button) => {
+          button.addEventListener("click", () => {
+            reviewState.value = "complete";
+            root.dataset.uiState = "complete";
+            updateRuntimeStatus();
+            showToast("Returned to complete GUI preview");
+          });
+        });
+
+        document
+          .querySelectorAll("[data-open-dialog]")
+          .forEach((button) =>
+            button.addEventListener("click", () => dialog.showModal()),
+          );
+        document
+          .querySelector("#close-dialog")
+          .addEventListener("click", () => dialog.close());
+        dialog.addEventListener("click", (event) => {
+          if (event.target === dialog) dialog.close();
+        });
+
+        root.dataset.uiState = "complete";
+        root.dataset.annotation = "off";
+        updateRuntimeStatus();
+      })();
+    </script>
+
+    <script>
+      (() => {
+        "use strict";
+        // Sidebar collapse/expand (separate from the main app logic).
+        const appShell = document.querySelector(".app-shell");
+        const toggle = document.querySelector("#sidebar-toggle");
+        if (!appShell || !toggle) return;
+        const KEY = "p2p-sidebar-state";
+        function sync() {
+          const expanded = appShell.classList.contains("expanded");
+          toggle.setAttribute("aria-expanded", String(expanded));
+          try {
+            localStorage.setItem(KEY, expanded ? "expanded" : "collapsed");
+          } catch (e) {
+            /* localStorage may be unavailable on file:// — fine */
+          }
+        }
+        try {
+          if (localStorage.getItem(KEY) === "expanded") {
+            appShell.classList.add("expanded");
+          }
+        } catch (e) {
+          /* ignore */
+        }
+        toggle.addEventListener("click", () => {
+          appShell.classList.toggle("expanded");
+          sync();
+        });
+        sync();
+      })();
+    </script>
+  </body>
+</html>

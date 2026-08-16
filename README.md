@@ -20,19 +20,20 @@ The live source is an unsupported website contract and is always labeled **Exper
   <img src="docs/assets/foundation-shell.png" alt="Current P2P Desk foundation shell with its six-page navigation" width="920" />
 </p>
 
-The screenshot shows the current foundation shell. Live acquisition, persistence, complete pages, reports, and release packages are still in development.
+The screenshot shows the current foundation shell. Complete production pages, reports, and release packages are still in development; it is not the finished application.
 
-For design review, open the self-contained [finished-GUI HTML preview](design/p2p-desk-finished-gui-preview.html). Its values and merchant labels are illustrative interface content only—not live, cached, historical, or captured provider data.
+The user-approved production visual baseline is the self-contained [compact production UI](design/p2p-desk-production-ui-approval-v2.html). Its displayed values and merchant labels are illustrative interface content only—not live, cached, historical, or captured provider data.
 
 ## Current capabilities
 
-| Capability                                         | Current behavior                                                                                                                                                                 |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Desktop foundation                                 | Restrictive CSP, narrow typed IPC, local assets, least-privilege Tauri capability, and safe window-state handling                                                                |
-| Exact domain core                                  | String-only exact decimal boundary, side and eligibility validation, deterministic ranking, quotes, costs, robust statistics, sensitivity, and constrained multi-ad calculations |
-| Verification                                       | Locked formatting, linting, type checks, frontend/Rust tests, security invariants, and production web build                                                                      |
-| Experimental live provider                         | Validated fail-closed Rust adapter, scheduling, circuits, pair checks, and isolated Agent metadata; UI orchestration is not implemented yet                                      |
-| SQLite, complete UI, reports, and release packages | Not implemented yet                                                                                                                                                              |
+| Capability                                   | Current behavior                                                                                                                                                                 |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop foundation                           | Restrictive CSP, narrow typed IPC, local assets, least-privilege Tauri capability, and safe window-state handling                                                                |
+| Exact domain core                            | String-only exact decimal boundary, side and eligibility validation, deterministic ranking, quotes, costs, robust statistics, sensitivity, and constrained multi-ad calculations |
+| Verification                                 | Locked formatting, linting, type checks, frontend/Rust tests, security invariants, and production web build                                                                      |
+| Experimental live provider                   | Validated fail-closed Rust adapter, scheduling, circuits, pair checks, and isolated Agent metadata; UI orchestration is not implemented yet                                      |
+| SQLite persistence and recovery              | Strict exact-text schema, atomic two-side publication, pseudonymous/content-addressed history, tiered retention, cost versions, migration backup, validated restore, and clears  |
+| Complete production UI, reports, and release | Not implemented yet                                                                                                                                                              |
 
 ## Requirements
 
@@ -59,21 +60,25 @@ No provider credentials or environment variables are required.
 
 ```text
 app/                 React and TypeScript frontend
-crates/p2p-domain/   exact validated calculation core
-src-tauri/           trusted desktop shell and Rust integration
+crates/p2p-domain/       exact validated calculation core
+crates/p2p-provider/     fail-closed experimental provider adapter
+crates/p2p-persistence/  SQLite, retention, migration, backup and restore core
+src-tauri/               trusted desktop shell and Rust integration
 docs/                public architecture, security, and build notes
 scripts/             verification and dependency tools
 ```
 
 ## Further documentation
 
-| Document                                       | Purpose                                              |
-| ---------------------------------------------- | ---------------------------------------------------- |
-| [Architecture](docs/architecture.md)           | Trust boundary and module ownership                  |
-| [Build](docs/build.md)                         | Toolchains, prerequisites, and verification commands |
-| [Security](docs/security.md)                   | Local-only frontend and capability policy            |
-| [Provider contract](docs/provider.md)          | Experimental source controls and failure policy      |
-| [Dependency review](docs/dependency-review.md) | Dependency and advisory handling                     |
+| Document                                       | Purpose                                               |
+| ---------------------------------------------- | ----------------------------------------------------- |
+| [Architecture](docs/architecture.md)           | Trust boundary and module ownership                   |
+| [Build](docs/build.md)                         | Toolchains, prerequisites, and verification commands  |
+| [Security](docs/security.md)                   | Local-only frontend and capability policy             |
+| [Provider contract](docs/provider.md)          | Experimental source controls and failure policy       |
+| [Persistence](docs/persistence.md)             | SQLite, privacy, retention, backup, and restore       |
+| [Schema catalog](docs/persistence-schema.md)   | Migration checksum, relations, and storage invariants |
+| [Dependency review](docs/dependency-review.md) | Dependency and advisory handling                      |
 
 ## Planned release targets
 

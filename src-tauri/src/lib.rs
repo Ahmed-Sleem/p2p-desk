@@ -1,10 +1,13 @@
 mod commands;
 pub mod contracts;
 pub use p2p_domain as domain;
+pub use p2p_persistence as persistence;
 pub use p2p_provider as provider;
 mod platform;
 
 use std::fmt;
+use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use contracts::{PrerequisiteStatus, RuntimePrerequisite};
 use tauri::Manager;
@@ -15,6 +18,9 @@ pub struct RuntimeState(pub RuntimePrerequisite);
 
 #[derive(Clone)]
 pub struct ProviderRuntimeState(pub provider::LiveProviderRuntime);
+
+#[derive(Clone)]
+pub struct PersistenceRuntimeState(pub Arc<persistence::PersistenceStore>);
 
 #[derive(Debug)]
 pub enum StartupError {
@@ -69,8 +75,20 @@ pub fn run() -> Result<(), StartupError> {
         .manage(ProviderRuntimeState(provider))
         .setup(|app| {
             let local_data = app.path().local_data_dir()?;
-            let state_dir = commands::data_root_for(&local_data).join("state");
+            let data_root = commands::data_root_for(&local_data);
+            let state_dir = data_root.join("state");
             std::fs::create_dir_all(&state_dir)?;
+            let opened_at_ms = i64::try_from(
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map_err(std::io::Error::other)?
+                    .as_millis(),
+            )
+            .map_err(|_| std::io::Error::other("system time exceeds supported range"))?;
+            let versions = persistence::RuntimeVersions::current(env!("CARGO_PKG_VERSION"))?;
+            let persistence =
+                persistence::PersistenceStore::open(&data_root, versions, opened_at_ms)?;
+            app.manage(PersistenceRuntimeState(Arc::new(persistence)));
             let state_file = state_dir.join("window-state.json");
             app.handle().plugin(
                 tauri_plugin_window_state::Builder::new()

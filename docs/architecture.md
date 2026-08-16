@@ -14,6 +14,7 @@ The frontend has no filesystem, HTTP, shell, dialog, updater, notification, acco
 
 - Rust product/build/window constants: `src-tauri/src/contracts.rs`.
 - Experimental source policy, contracts, scheduling, circuits, Agent isolation and pair checks: `crates/p2p-provider/` and `docs/provider.md`.
+- SQLite schema, atomic publication, pseudonymization, retention, cost versions, migrations, backup/restore, and clear scopes: `crates/p2p-persistence/`, `docs/persistence.md`, and `docs/persistence-schema.md`.
 - TypeScript IPC shape: `app/src/ipc/contracts.ts`.
 - IPC invocation/defensive error normalization: `app/src/ipc/client.ts`.
 - Window/security/base Windows bundle policy: `src-tauri/tauri.conf.json`.
@@ -26,6 +27,12 @@ Later gates must extend these sources rather than duplicate them.
 ## Provider runtime
 
 The Tauri process constructs and owns one `LiveProviderRuntime`. Its primary adapter uses fixed HTTPS destinations, exact response normalization, one serialized acquisition graph, one globally paced request gate, bounded retries, cancellation, and global timed/persistent circuits. Optional Agent metadata and quote types are structurally separate and cannot become primary ads. Gate 3 does not widen the current frontend command surface; lifecycle/state commands and event wiring are added with their UI orchestration gate.
+
+## Persistence runtime
+
+During Tauri setup, Rust resolves the product data root and opens one shared `PersistenceStore`. The store owns the single application SQLite connection behind a serialized trusted boundary. It enables foreign keys, WAL, full synchronous durability, bounded busy handling, migration/integrity checks, the managed page cap, and the separate pseudonym key before the application becomes ready. No persistence command is exposed to the frontend yet; typed lifecycle commands are added with the state-orchestration gate.
+
+Only a complete validated provider `Acquisition` can enter atomic publication. Raw source identifiers are transformed locally, public nicknames and provider bodies are omitted, and exact values remain decimal text. See the persistence documents for the schema, retention, and rollback-capable backup contract.
 
 ## Window state
 

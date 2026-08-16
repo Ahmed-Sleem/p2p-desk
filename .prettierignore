@@ -2,6 +2,11 @@
 evidence/*.json
 package-lock.json
 
+# User-approved self-contained visual artifacts are preserved byte-for-byte.
+design/p2p-desk-user-baseline-corrected.html
+design/p2p-desk-production-ui-approval.html
+design/p2p-desk-production-ui-approval-v2.html
+
 # Native/generated outputs.
 src-tauri/target/
 src-tauri/gen/

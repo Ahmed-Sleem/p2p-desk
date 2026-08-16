@@ -43,3 +43,15 @@ Local evidence is kept outside the public repository:
 - `evidence/gate_03_provider_dependency_inventory.json`
 - `evidence/gate_03_provider_cargo_audit.json`
 - `evidence/gate_03_integrated_cargo_audit.json`
+
+## Gate 4 persistence update — 2026-08-16
+
+The trusted persistence crate adds exact-pinned `rusqlite` 0.40.2 with bundled SQLite and online-backup support, `zip` 8.6.0 with stored-entry support only, `sha2` 0.11.0, `hmac` 0.13.0, `getrandom` 0.4.3, `tempfile` 3.27.0, and `fs2` 0.4.3. Bundled SQLite removes dependency on a target machine's SQLite library/version while preserving the same Windows and Intel macOS source implementation.
+
+The persistence locked graph contains 202 dependency name/version components across all-target metadata, including the existing domain/provider graph. Registry metadata reports a license for every component; no AGPL/GPL-3/GPLv3 candidate expression was found. Cargo-audit 0.22.2 reports zero vulnerabilities and zero informational warnings for the persistence lockfile. The integrated Tauri lockfile still reports zero vulnerabilities plus the same previously reviewed 16 unmaintained and one Linux GTK/glib unsound informational warnings; Gate 4 introduced no new matched advisory.
+
+Evidence:
+
+- `evidence/gate_04_persistence_dependency_inventory.json`
+- `evidence/gate_04_persistence_cargo_audit.json`
+- `evidence/gate_04_integrated_cargo_audit.json`
