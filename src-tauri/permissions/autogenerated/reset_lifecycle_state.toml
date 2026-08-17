@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-reset-lifecycle-state"
+description = "Enables the reset_lifecycle_state command without any pre-configured scope."
+commands.allow = ["reset_lifecycle_state"]
+
+[[permission]]
+identifier = "deny-reset-lifecycle-state"
+description = "Denies the reset_lifecycle_state command without any pre-configured scope."
+commands.deny = ["reset_lifecycle_state"]

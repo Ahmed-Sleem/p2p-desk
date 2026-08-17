@@ -31,8 +31,9 @@ The user-approved production visual baseline is the self-contained [compact prod
 | Desktop foundation                           | Restrictive CSP, narrow typed IPC, local assets, least-privilege Tauri capability, and safe window-state handling                                                                |
 | Exact domain core                            | String-only exact decimal boundary, side and eligibility validation, deterministic ranking, quotes, costs, robust statistics, sensitivity, and constrained multi-ad calculations |
 | Verification                                 | Locked formatting, linting, type checks, frontend/Rust tests, security invariants, and production web build                                                                      |
-| Experimental live provider                   | Validated fail-closed Rust adapter, scheduling, circuits, pair checks, and isolated Agent metadata; UI orchestration is not implemented yet                                      |
+| Experimental live provider                   | Validated fail-closed Rust adapter, eligible-target scheduling, circuits, pair checks, and isolated Agent metadata                                                               |
 | SQLite persistence and recovery              | Strict exact-text schema, atomic two-side publication, pseudonymous/content-addressed history, tiered retention, cost versions, migration backup, validated restore, and clears  |
+| Lifecycle and refresh orchestration          | Typed startup, restored draft/applied context, Rust-owned auto scheduling, cancellation, freshness, atomic publication, and post-commit pruning                                  |
 | Complete production UI, reports, and release | Not implemented yet                                                                                                                                                              |
 
 ## Requirements
@@ -63,6 +64,7 @@ app/                 React and TypeScript frontend
 crates/p2p-domain/       exact validated calculation core
 crates/p2p-provider/     fail-closed experimental provider adapter
 crates/p2p-persistence/  SQLite, retention, migration, backup and restore core
+crates/p2p-lifecycle/    typed startup, refresh, settings and publication state
 src-tauri/               trusted desktop shell and Rust integration
 docs/                public architecture, security, and build notes
 scripts/             verification and dependency tools
@@ -76,6 +78,7 @@ scripts/             verification and dependency tools
 | [Build](docs/build.md)                         | Toolchains, prerequisites, and verification commands  |
 | [Security](docs/security.md)                   | Local-only frontend and capability policy             |
 | [Provider contract](docs/provider.md)          | Experimental source controls and failure policy       |
+| [Lifecycle](docs/lifecycle.md)                 | Startup, settings, scheduling, and publication graph  |
 | [Persistence](docs/persistence.md)             | SQLite, privacy, retention, backup, and restore       |
 | [Schema catalog](docs/persistence-schema.md)   | Migration checksum, relations, and storage invariants |
 | [Dependency review](docs/dependency-review.md) | Dependency and advisory handling                      |

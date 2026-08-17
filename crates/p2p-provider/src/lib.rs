@@ -21,8 +21,9 @@ pub use policy::{
 };
 pub use runtime::{LiveProviderRuntime, PairCheckError, PairCheckResult, RuntimeBuildError};
 pub use scheduler::{
-    Acquisition, AcquisitionProgress, AcquisitionRequest, PaginationFailure, ProgressStage,
-    ProviderError, ProviderService, SideAcquisition, SideProgress,
+    Acquisition, AcquisitionEligibility, AcquisitionProgress, AcquisitionRequest,
+    PaginationFailure, ProgressStage, ProviderError, ProviderService, SideAcquisition,
+    SideProgress,
 };
 pub use transport::{
     GlobalRequestGate, PageTransport, ReqwestPageTransport, TransportError, TransportFuture,

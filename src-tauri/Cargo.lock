@@ -2409,6 +2409,7 @@ name = "p2p-desk"
 version = "0.1.0"
 dependencies = [
  "p2p-domain",
+ "p2p-lifecycle",
  "p2p-persistence",
  "p2p-provider",
  "serde",
@@ -2417,6 +2418,8 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-window-state",
  "thiserror 2.0.20",
+ "tokio",
+ "tokio-util",
  "webview2-com 0.39.1",
  "windows 0.62.2",
 ]
@@ -2427,6 +2430,18 @@ version = "0.1.0"
 dependencies = [
  "fastnum",
  "serde",
+ "thiserror 2.0.20",
+]
+
+[[package]]
+name = "p2p-lifecycle"
+version = "0.1.0"
+dependencies = [
+ "p2p-domain",
+ "p2p-persistence",
+ "p2p-provider",
+ "serde",
+ "serde_json",
  "thiserror 2.0.20",
 ]
 

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-update-refresh-settings"
+description = "Enables the update_refresh_settings command without any pre-configured scope."
+commands.allow = ["update_refresh_settings"]
+
+[[permission]]
+identifier = "deny-update-refresh-settings"
+description = "Denies the update_refresh_settings command without any pre-configured scope."
+commands.deny = ["update_refresh_settings"]

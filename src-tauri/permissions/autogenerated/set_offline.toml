@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-set-offline"
+description = "Enables the set_offline command without any pre-configured scope."
+commands.allow = ["set_offline"]
+
+[[permission]]
+identifier = "deny-set-offline"
+description = "Denies the set_offline command without any pre-configured scope."
+commands.deny = ["set_offline"]

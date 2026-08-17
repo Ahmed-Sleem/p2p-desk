@@ -89,10 +89,28 @@ pub enum AppErrorCategory {
     Configuration,
     Prerequisite,
     Storage,
+    Provider,
+    Lifecycle,
     Internal,
 }
 
 impl AppErrorEnvelope {
+    pub fn lifecycle(
+        code: &'static str,
+        category: AppErrorCategory,
+        message: impl Into<String>,
+        retryable: bool,
+        request_id: Option<String>,
+    ) -> Self {
+        Self {
+            code,
+            category,
+            message: message.into(),
+            retryable,
+            request_id,
+        }
+    }
+
     pub fn storage(message: impl Into<String>) -> Self {
         Self {
             code: "CORE-STORAGE-PATH",

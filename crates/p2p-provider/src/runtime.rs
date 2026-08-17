@@ -129,6 +129,7 @@ impl LiveProviderRuntime {
             selected_payment_methods: BTreeSet::new(),
             payment_logic: PaymentLogic::Any,
             target: ResultsTarget::new(20).expect("approved minimum target"),
+            local_eligibility: None,
         };
         let acquisition = match self
             .primary

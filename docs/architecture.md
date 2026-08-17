@@ -2,21 +2,23 @@
 
 ## Boundary
 
-`app/` contains the React/TypeScript presentation shell. `src-tauri/` contains the trusted Rust process. The frontend may call only commands registered in `build.rs`, the Tauri invoke handler, and `capabilities/main.json`.
+`app/` contains the React/TypeScript presentation shell. `src-tauri/` contains the trusted Rust process. The frontend may call only commands registered in the Tauri invoke handler and allowed by the application capability boundary.
 
 Current command surface:
 
-- `get_bootstrap_info` — returns non-sensitive product/build/window/runtime/data-root metadata.
+- `get_bootstrap_info` returns non-sensitive product/build/window/runtime/data-root metadata.
+- Lifecycle commands return typed state, persist validated draft/applied context and refresh settings, apply context, run or cancel refresh, evaluate the automatic deadline, and report offline/wake changes.
 
-The frontend has no filesystem, HTTP, shell, dialog, updater, notification, account, credential, or provider capability.
+The frontend has no filesystem, HTTP, shell, dialog, updater, notification, account, credential, direct provider, or direct persistence capability.
 
 ## Central sources
 
 - Rust product/build/window constants: `src-tauri/src/contracts.rs`.
 - Experimental source policy, contracts, scheduling, circuits, Agent isolation and pair checks: `crates/p2p-provider/` and `docs/provider.md`.
 - SQLite schema, atomic publication, pseudonymization, retention, cost versions, migrations, backup/restore, and clear scopes: `crates/p2p-persistence/`, `docs/persistence.md`, and `docs/persistence-schema.md`.
-- TypeScript IPC shape: `app/src/ipc/contracts.ts`.
-- IPC invocation/defensive error normalization: `app/src/ipc/client.ts`.
+- Typed startup, settings, draft/applied context, freshness, scheduling, cancellation, and publication orchestration: `crates/p2p-lifecycle/`, `src-tauri/src/lifecycle_commands.rs`, and `docs/lifecycle.md`.
+- TypeScript IPC shapes: `app/src/ipc/contracts.ts` and `app/src/ipc/lifecycle-contracts.ts`.
+- IPC invocation/defensive error normalization: `app/src/ipc/client.ts` and `app/src/ipc/lifecycle-client.ts`.
 - Window/security/base Windows bundle policy: `src-tauri/tauri.conf.json`.
 - Intel macOS application-bundle policy: `src-tauri/tauri.macos.conf.json`.
 - Capability boundary: `src-tauri/capabilities/main.json`.
@@ -26,11 +28,11 @@ Later gates must extend these sources rather than duplicate them.
 
 ## Provider runtime
 
-The Tauri process constructs and owns one `LiveProviderRuntime`. Its primary adapter uses fixed HTTPS destinations, exact response normalization, one serialized acquisition graph, one globally paced request gate, bounded retries, cancellation, and global timed/persistent circuits. Optional Agent metadata and quote types are structurally separate and cannot become primary ads. Gate 3 does not widen the current frontend command surface; lifecycle/state commands and event wiring are added with their UI orchestration gate.
+The Tauri process constructs and owns one `LiveProviderRuntime`. Its primary adapter uses fixed HTTPS destinations, exact response normalization, one serialized acquisition graph, one globally paced request gate, bounded retries, cancellation, local eligibility-aware target paging, and global timed/persistent circuits. Optional Agent metadata and quote types are structurally separate and cannot become primary ads. The lifecycle adapter can invoke this runtime only through a typed refresh graph.
 
 ## Persistence runtime
 
-During Tauri setup, Rust resolves the product data root and opens one shared `PersistenceStore`. The store owns the single application SQLite connection behind a serialized trusted boundary. It enables foreign keys, WAL, full synchronous durability, bounded busy handling, migration/integrity checks, the managed page cap, and the separate pseudonym key before the application becomes ready. No persistence command is exposed to the frontend yet; typed lifecycle commands are added with the state-orchestration gate.
+During Tauri setup, Rust resolves the product data root and opens one shared `PersistenceStore`. The store owns the single application SQLite connection behind a serialized trusted boundary. It enables foreign keys, WAL, full synchronous durability, bounded busy handling, migration/integrity checks, the managed page cap, and the separate pseudonym key before the application becomes ready. No generic persistence command is exposed to the frontend; lifecycle commands permit only validated settings writes and complete atomic publication through Rust orchestration.
 
 Only a complete validated provider `Acquisition` can enter atomic publication. Raw source identifiers are transformed locally, public nicknames and provider bodies are omitted, and exact values remain decimal text. See the persistence documents for the schema, retention, and rollback-capable backup contract.
 

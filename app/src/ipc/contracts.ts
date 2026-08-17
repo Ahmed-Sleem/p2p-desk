@@ -40,7 +40,12 @@ export interface BootstrapInfo {
 }
 
 export type AppErrorCategory =
-  "configuration" | "prerequisite" | "storage" | "internal";
+  | "configuration"
+  | "prerequisite"
+  | "storage"
+  | "provider"
+  | "lifecycle"
+  | "internal";
 
 export interface AppErrorEnvelope {
   readonly code: string;

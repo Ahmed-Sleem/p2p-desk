@@ -3,8 +3,9 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use p2p_domain::{
-    ExactDecimal, MarketPair, PageReceiptTiming, PaymentLogic, PaymentMethod, ResultsTarget,
-    SideQuality, StableId, UserIntent,
+    CalculationError, EligibilityFilters, ExactDecimal, MarketPair, PageReceiptTiming,
+    PaymentLogic, PaymentMethod, RequestedAmount, ResultsTarget, SideQuality, StableId, UserIntent,
+    evaluate_eligibility,
 };
 use serde::Serialize;
 use thiserror::Error;
@@ -24,6 +25,12 @@ use crate::transport::{
 };
 
 #[derive(Clone, Debug)]
+pub struct AcquisitionEligibility {
+    pub amount: RequestedAmount,
+    pub filters: EligibilityFilters,
+}
+
+#[derive(Clone, Debug)]
 pub struct AcquisitionRequest {
     pub request_id: StableId,
     pub pair: MarketPair,
@@ -31,6 +38,7 @@ pub struct AcquisitionRequest {
     pub selected_payment_methods: BTreeSet<PaymentMethod>,
     pub payment_logic: PaymentLogic,
     pub target: ResultsTarget,
+    pub local_eligibility: Option<AcquisitionEligibility>,
 }
 
 impl AcquisitionRequest {
@@ -121,6 +129,8 @@ pub enum ProviderError {
     Contract(ContractError),
     #[error("provider pagination validation failed")]
     Pagination(PaginationFailure),
+    #[error("local eligibility calculation failed")]
+    Eligibility(CalculationError),
     #[error("provider quality counters were internally inconsistent")]
     Quality,
 }
@@ -310,8 +320,12 @@ impl<T: PageTransport> ProviderService<T> {
                         .map_err(|_| ProviderError::Quality)?,
                 );
                 match intent {
-                    UserIntent::BuyAsset => buy.apply_page(validated)?,
-                    UserIntent::SellAsset => sell.apply_page(validated)?,
+                    UserIntent::BuyAsset => {
+                        buy.apply_page(validated, request.local_eligibility.as_ref())?
+                    }
+                    UserIntent::SellAsset => {
+                        sell.apply_page(validated, request.local_eligibility.as_ref())?
+                    }
                 }
             }
         }
@@ -322,7 +336,8 @@ impl<T: PageTransport> ProviderService<T> {
             ));
         }
         for side in [&buy, &sell] {
-            if side.ads.is_empty() && side.fetched > 0 && side.exhausted {
+            if side.ads.is_empty() && side.fetched > 0 && side.exhausted && side.local_rejected == 0
+            {
                 return Err(ProviderError::Pagination(
                     PaginationFailure::AllRowsRejected,
                 ));
@@ -466,6 +481,7 @@ struct SideAccumulator {
     fetched: u32,
     duplicates: u32,
     rejected: u32,
+    local_rejected: u32,
     target: u32,
     provider_total: Option<u32>,
     exhausted: bool,
@@ -483,6 +499,7 @@ impl SideAccumulator {
             fetched: 0,
             duplicates: 0,
             rejected: 0,
+            local_rejected: 0,
             target,
             provider_total: None,
             exhausted: false,
@@ -506,7 +523,11 @@ impl SideAccumulator {
         }
     }
 
-    fn apply_page(&mut self, page: ValidatedPage) -> Result<(), ProviderError> {
+    fn apply_page(
+        &mut self,
+        page: ValidatedPage,
+        local_eligibility: Option<&AcquisitionEligibility>,
+    ) -> Result<(), ProviderError> {
         let fetched_after = self.fetched.saturating_add(page.fetched);
         if fetched_after > page.provider_total {
             return Err(ProviderError::Pagination(
@@ -533,6 +554,20 @@ impl SideAccumulator {
                 continue;
             }
             unique_on_page = unique_on_page.saturating_add(1);
+            if let Some(eligibility) = local_eligibility {
+                let evaluation = evaluate_eligibility(
+                    self.intent,
+                    eligibility.amount,
+                    &eligibility.filters,
+                    &normalized.ad,
+                )
+                .map_err(ProviderError::Eligibility)?;
+                if !evaluation.eligible() {
+                    self.local_rejected = self.local_rejected.saturating_add(1);
+                    self.rejected = self.rejected.saturating_add(1);
+                    continue;
+                }
+            }
             if self.ads.len() < self.target as usize {
                 self.ads.push(normalized);
             }
@@ -672,6 +707,7 @@ mod tests {
             selected_payment_methods: BTreeSet::new(),
             payment_logic: PaymentLogic::Any,
             target: ResultsTarget::new(20).expect("target"),
+            local_eligibility: None,
         }
     }
 
@@ -939,6 +975,45 @@ mod tests {
                 ..
             }))
         ));
+    }
+
+    #[tokio::test]
+    async fn local_eligibility_continues_paging_to_trustworthy_exhaustion() {
+        use p2p_domain::{AmountMode, EligibilityFiltersInput, RequestedAmount};
+
+        let transport = MockTransport::new(vec![
+            Ok(response("SELL", 21, 20)),
+            Ok(response("BUY", 21, 20)),
+            Ok(response_range("SELL", 21, 20, 1)),
+            Ok(response_range("BUY", 21, 20, 1)),
+        ]);
+        let requests = Arc::clone(&transport.requests);
+        let service = ProviderService::new_for_test(transport);
+        let mut value = request();
+        value.local_eligibility = Some(AcquisitionEligibility {
+            amount: RequestedAmount::new(ExactDecimal::from_i64(10_000), AmountMode::Fiat)
+                .expect("amount"),
+            filters: EligibilityFilters::new(EligibilityFiltersInput {
+                selected_payments: BTreeSet::new(),
+                payment_logic: PaymentLogic::Any,
+                minimum_orders: 200,
+                minimum_completion_percent: ExactDecimal::ZERO,
+                minimum_positive_percent: ExactDecimal::ZERO,
+                pro_only: false,
+                maximum_buy_price: None,
+                minimum_sell_price: None,
+            })
+            .expect("filters"),
+        });
+        let result = service
+            .acquire(value, CancellationToken::new(), |_| {})
+            .await
+            .expect("confirmed local no-match");
+        assert!(result.buy.ads.is_empty());
+        assert!(result.sell.ads.is_empty());
+        assert!(result.buy.quality.exhausted());
+        assert_eq!(result.buy.quality.rejected(), 21);
+        assert_eq!(requests.lock().await.len(), 4);
     }
 
     #[test]

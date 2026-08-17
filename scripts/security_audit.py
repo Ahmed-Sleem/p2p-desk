@@ -45,8 +45,23 @@ check("global Tauri API disabled", config["app"]["withGlobalTauri"] is False)
 check("prototype freezing enabled", security["freezePrototype"] is True)
 check("unused Tauri commands removed", config["build"]["removeUnusedCommands"] is True)
 check("single named capability", security["capabilities"] == ["main"] and capability["windows"] == ["main"])
-check("single bootstrap permission", capability["permissions"] == ["allow-get-bootstrap-info"])
-check("AppManifest restricts command inventory", 'commands(COMMANDS)' in build_rs and '"get_bootstrap_info"' in build_rs)
+expected_commands = [
+    "get_bootstrap_info",
+    "get_lifecycle_view",
+    "reset_lifecycle_state",
+    "update_market_draft",
+    "update_refresh_settings",
+    "apply_market_context",
+    "refresh_market",
+    "refresh_if_due",
+    "refresh_after_wake",
+    "set_offline",
+    "cancel_refresh",
+]
+expected_permissions = [f"allow-{command.replace('_', '-')}" for command in expected_commands]
+manifest_commands = re.findall(r'"([a-z_]+)"', build_rs.split("fn main", 1)[0])
+check("capability grants only bootstrap and typed lifecycle commands", capability["permissions"] == expected_permissions)
+check("AppManifest restricts exact command inventory", 'commands(COMMANDS)' in build_rs and manifest_commands == expected_commands)
 check("no shell/http/fs plugin dependency", all(token not in cargo for token in ["tauri-plugin-shell", "tauri-plugin-http", "tauri-plugin-fs"]))
 check("no frontend shell/http/fs package", all(token not in json.dumps(app_package) for token in ["plugin-shell", "plugin-http", "plugin-fs"]))
 check("no unsafe web sinks", not re.search(r"dangerouslySetInnerHTML|\.innerHTML\s*=|\beval\s*\(|new\s+Function|document\.write", web_sources))

@@ -1,7 +1,19 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "description": "Only the bundled main window may read non-sensitive bootstrap metadata.",
+  "description": "The bundled main window may read bootstrap metadata and invoke the trusted typed lifecycle boundary.",
   "windows": ["main"],
-  "permissions": ["allow-get-bootstrap-info"]
+  "permissions": [
+    "allow-get-bootstrap-info",
+    "allow-get-lifecycle-view",
+    "allow-reset-lifecycle-state",
+    "allow-update-market-draft",
+    "allow-update-refresh-settings",
+    "allow-apply-market-context",
+    "allow-refresh-market",
+    "allow-refresh-if-due",
+    "allow-refresh-after-wake",
+    "allow-set-offline",
+    "allow-cancel-refresh"
+  ]
 }

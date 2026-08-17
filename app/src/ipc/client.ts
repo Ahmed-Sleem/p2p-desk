@@ -16,6 +16,8 @@ function isAppErrorCategory(
     value === "configuration" ||
     value === "prerequisite" ||
     value === "storage" ||
+    value === "provider" ||
+    value === "lifecycle" ||
     value === "internal"
   );
 }

@@ -1,8 +1,10 @@
 mod commands;
 pub mod contracts;
 pub use p2p_domain as domain;
+pub use p2p_lifecycle as lifecycle;
 pub use p2p_persistence as persistence;
 pub use p2p_provider as provider;
+mod lifecycle_commands;
 mod platform;
 
 use std::fmt;
@@ -21,6 +23,12 @@ pub struct ProviderRuntimeState(pub provider::LiveProviderRuntime);
 
 #[derive(Clone)]
 pub struct PersistenceRuntimeState(pub Arc<persistence::PersistenceStore>);
+
+#[derive(Clone)]
+pub struct LifecycleRuntimeState {
+    controller: Arc<tokio::sync::Mutex<lifecycle::LifecycleController>>,
+    active_cancellation: Arc<tokio::sync::Mutex<Option<tokio_util::sync::CancellationToken>>>,
+}
 
 #[derive(Debug)]
 pub enum StartupError {
@@ -86,9 +94,14 @@ pub fn run() -> Result<(), StartupError> {
             )
             .map_err(|_| std::io::Error::other("system time exceeds supported range"))?;
             let versions = persistence::RuntimeVersions::current(env!("CARGO_PKG_VERSION"))?;
-            let persistence =
-                persistence::PersistenceStore::open(&data_root, versions, opened_at_ms)?;
-            app.manage(PersistenceRuntimeState(Arc::new(persistence)));
+            let persistence = Arc::new(persistence::PersistenceStore::open(
+                &data_root,
+                versions,
+                opened_at_ms,
+            )?);
+            let lifecycle = lifecycle_commands::initialize_lifecycle(&persistence, opened_at_ms)?;
+            app.manage(PersistenceRuntimeState(persistence));
+            app.manage(lifecycle);
             let state_file = state_dir.join("window-state.json");
             app.handle().plugin(
                 tauri_plugin_window_state::Builder::new()
@@ -96,9 +109,22 @@ pub fn run() -> Result<(), StartupError> {
                     .with_state_flags(StateFlags::SIZE | StateFlags::POSITION)
                     .build(),
             )?;
+            lifecycle_commands::start_auto_scheduler(app.handle().clone());
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::get_bootstrap_info])
+        .invoke_handler(tauri::generate_handler![
+            commands::get_bootstrap_info,
+            lifecycle_commands::get_lifecycle_view,
+            lifecycle_commands::reset_lifecycle_state,
+            lifecycle_commands::update_market_draft,
+            lifecycle_commands::update_refresh_settings,
+            lifecycle_commands::apply_market_context,
+            lifecycle_commands::refresh_market,
+            lifecycle_commands::refresh_if_due,
+            lifecycle_commands::refresh_after_wake,
+            lifecycle_commands::set_offline,
+            lifecycle_commands::cancel_refresh,
+        ])
         .run(tauri::generate_context!())
         .map_err(StartupError::Tauri)
 }

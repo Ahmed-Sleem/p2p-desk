@@ -10,7 +10,8 @@
 ## Native capabilities
 
 - One local window: `main`.
-- One allowed application command: `get_bootstrap_info`.
+- The allowlisted application surface is limited to bootstrap and typed lifecycle/settings/refresh commands registered in the Tauri invoke handler.
+- No generic network, provider, filesystem, or persistence command is exposed.
 - Tauri removes unused commands during release build.
 - No shell, HTTP, filesystem, updater, dialog, notification, clipboard, global-shortcut, process, service, or sidecar plugin.
 - Automatic window state is Rust-owned; its frontend commands are removed and not granted.
@@ -21,7 +22,7 @@ Provider access exists only in the trusted Rust `p2p-provider` crate. It has thr
 
 ## Storage
 
-Gate 1 creates only the local product/state directory. Database/log/report/backup behavior is implemented and tested in later gates. The executable directory is never an operational storage root.
+The trusted Rust store owns SQLite, the separate local pseudonym key, versioned lifecycle settings, complete snapshot publication, retention, backup/restore foundations, and independent clear scopes under the operating-system local-data root. The executable directory is never an operational storage root. The renderer cannot access these files directly.
 
 ## Build and publication
 
